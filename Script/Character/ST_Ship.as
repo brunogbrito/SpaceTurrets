@@ -1,3 +1,4 @@
+import Character.ST_PlayerProjectile;
 import Core.ST_Statics;
 
 class ASTShip : APawn
@@ -29,17 +30,35 @@ class ASTShip : APawn
     UPROPERTY(DefaultComponent, Category = "Components")
     UInputComponent PlayerInputComponent;
 
-	UPROPERTY()
+	UPROPERTY(Category = "Ship Movement")
 	float ShipSpeed = 100.0f;
 
-	UPROPERTY()
+	UPROPERTY(Category = "Ship Movement")
 	float ShipRotationInterpSpeed = 10.0f;
 
-	UPROPERTY()
+	UPROPERTY(Category = "Projectile")
+	TSubclassOf<ASTPlayerProjectile> ProjectileClass;
+
+	UPROPERTY(Category = "Projectile")
     FTimerHandle TimeHandle_EachProjectileTimer;
 
-	UPROPERTY()
+	UPROPERTY(Category = "Projectile")
 	float ProjectileRPM = 450.0f;
+
+	UPROPERTY(Category = "Projectile")
+	USoundBase SShipShot;
+
+	UPROPERTY(Category = "PickUps")
+	bool bBonusShot;
+
+	UPROPERTY(Category = "PickUps")
+	bool bBonusSlowMotion;
+
+	UPROPERTY(Category = "PickUps")
+	bool bBonusProjectileBounce;
+
+	UPROPERTY(Category = "PickUps")
+	bool bBonusInvencible;
 
 	//Movement Local Variables
 	float RotateXValue;
@@ -50,7 +69,7 @@ class ASTShip : APawn
 	//Projectile Trigger Local Variables
 	float LastProjectileShot;
     float TimeBetweenShots;
-	
+
 
 	UFUNCTION(BlueprintOverride)
 	void BeginPlay()
@@ -145,7 +164,18 @@ class ASTShip : APawn
 	UFUNCTION()
 	void SpawnProjectile()
 	{
-		P();
+		
+		AActor MyProjectile = SpawnActor(ProjectileClass, ProjectileSpawnLocation.GetWorldLocation(), ProjectileSpawnLocation.GetWorldRotation());
+
+		if(bBonusShot)
+		{
+			//TODO Multiple Projectiles
+		}
+		
+		if(SShipShot != nullptr)
+		{
+			Gameplay::PlaySound2D(SShipShot);
+		}
 	}
 
 	UFUNCTION()
@@ -167,5 +197,4 @@ class ASTShip : APawn
 		FRotator TargetRotation = FRotator::MakeFromX(AxisVector) + FRotator(0.0f, 90.0f, 0.0f);
 		ShipHullMeshes.SetWorldRotation(FMath::RInterpTo(ShipHullMeshes.WorldRotation, TargetRotation, Gameplay::GetWorldDeltaSeconds(), ShipRotationInterpSpeed));
 	}
-
 }

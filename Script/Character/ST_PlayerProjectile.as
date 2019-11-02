@@ -2,10 +2,12 @@ class ASTPlayerProjectile : AActor
 {
 	UPROPERTY(DefaultComponent, RootComponent)
 	UBoxComponent CollisionBox;
+	default CollisionBox.CollisionObjectType = ECollisionChannel::ShipProjectile;
+	default CollisionBox.SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	default CollisionBox.SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
 
 	UPROPERTY(DefaultComponent)
 	UStaticMeshComponent ProjectileMesh;
-	default ProjectileMesh.SetEnableGravity(false);
 	default ProjectileMesh.SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	UPROPERTY(DefaultComponent)

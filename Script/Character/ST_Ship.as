@@ -32,29 +32,80 @@ class ASTShip : APawn
     UPROPERTY(DefaultComponent, Category = "Components")
     UInputComponent PlayerInputComponent;
 
+	float RotateXValue;
+	float RotateYValue;
+	float MoveForwardValue;
+	float MoveRightValue;
+
 	UFUNCTION(BlueprintOverride)
 	void BeginPlay()
 	{
 		BindInput();
 	}
 
+	UFUNCTION(BlueprintOverride)
+	void Tick(float DeltaSeconds)
+	{
+		SetShipRotation();
+	}
+
 	UFUNCTION()
 	void BindInput()
 	{
-		PlayerInputComponent.BindAxis(n"MoveForward", FInputAxisHandlerDynamicSignature(this, n"GoForward"));
-		PlayerInputComponent.BindAxis(n"MoveRight", FInputAxisHandlerDynamicSignature(this, n"GoRight"));
+		PlayerInputComponent.BindAxis(n"MoveForward", FInputAxisHandlerDynamicSignature(this, n"MoveForward"));
+		PlayerInputComponent.BindAxis(n"MoveRight", FInputAxisHandlerDynamicSignature(this, n"MoveRight"));
+		PlayerInputComponent.BindAxis(n"RotateX", FInputAxisHandlerDynamicSignature(this, n"RotateX"));
+		PlayerInputComponent.BindAxis(n"RotateY", FInputAxisHandlerDynamicSignature(this, n"RotateY"));
 	}
 
 	UFUNCTION()
-	void GoForward(float AxisValue)
+	void MoveForward(float AxisValue)
 	{
-		PawnMovementComponent.AddInputVector((FVector((AxisValue * ShipSpeed) * Gameplay::GetWorldDeltaSeconds(), 0.0f, 0.0f)));
+		if(AxisValue != 0.0f)
+		{
+			MoveForwardValue = AxisValue;
+			PawnMovementComponent.AddInputVector((FVector((AxisValue * ShipSpeed) * Gameplay::GetWorldDeltaSeconds(), 0.0f, 0.0f)));
+		}
 	}
 
 	UFUNCTION()
-	void GoRight(float AxisValue)
+	void MoveRight(float AxisValue)
 	{
-		PawnMovementComponent.AddInputVector((FVector(0.0f, (AxisValue * ShipSpeed) * Gameplay::GetWorldDeltaSeconds(), 0.0f)));
+		if(AxisValue != 0.0f)
+		{
+			MoveRightValue = AxisValue;
+			PawnMovementComponent.AddInputVector((FVector(0.0f, (AxisValue * ShipSpeed) * Gameplay::GetWorldDeltaSeconds(), 0.0f)));
+		}
 	}
 
+	UFUNCTION()
+	void RotateX(float AxisValue)
+	{
+		RotateXValue = AxisValue;
+	}
+
+	UFUNCTION()
+	void RotateY(float AxisValue)
+	{
+		RotateYValue = AxisValue;
+	}
+
+	UFUNCTION()
+	void SetShipRotation()
+	{	
+		if(RotateXValue != 0.0f || RotateYValue != 0.0f)
+		{
+			FVector AxisVector = FVector(RotateXValue,RotateYValue,0.0f);
+			FRotator Rot = 	FRotator::MakeFromX(AxisVector);
+			Rot = Rot + FRotator(0.0f, 90.0f, 0.0f);
+			ShipHullMeshes.SetWorldRotation(FMath::RInterpTo(ShipHullMeshes.WorldRotation, Rot, Gameplay::GetWorldDeltaSeconds(), 10.0f));			
+		}
+		else if(MoveForwardValue != 0.0f || MoveRightValue != 0.0f)
+		{
+			FVector AxisVector = FVector(MoveRightValue, -MoveForwardValue,0.0f);
+			FRotator Rot = 	FRotator::MakeFromX(AxisVector);
+			Rot = Rot + FRotator(0.0f, 90.0f, 0.0f);
+			ShipHullMeshes.SetWorldRotation(FMath::RInterpTo(ShipHullMeshes.WorldRotation, Rot, Gameplay::GetWorldDeltaSeconds(), 10.0f));	
+		}
+	}
 }

@@ -1,3 +1,5 @@
+import Core.ST_Statics;
+
 class ASTPlayerProjectile : AActor
 {
 	UPROPERTY(DefaultComponent, RootComponent)
@@ -15,5 +17,24 @@ class ASTPlayerProjectile : AActor
 	default ProjectileMovementComponent.InitialSpeed = 2000.0f;
 	default ProjectileMovementComponent.ProjectileGravityScale = 0.0f;
 
+	UPROPERTY()
+	float ProjectileDamage = 1.0f;
+
+	UPROPERTY()
+	UDamageType DamageType;
+
+	UPROPERTY()
+	AActor MyInstigator;
+
 	default InitialLifeSpan = 3.0f;
+
+	UFUNCTION(BlueprintOverride)
+	void ActorBeginOverlap(AActor OtherActor)
+	{
+		if(OtherActor != nullptr && !OtherActor.ActorHasTag(n"ship"))
+		{
+			OtherActor.AnyDamage(ProjectileDamage, DamageType, GetInstigatorController(), this);
+			DestroyActor();
+		}
+	}
 }

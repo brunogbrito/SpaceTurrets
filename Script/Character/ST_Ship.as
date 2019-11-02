@@ -1,4 +1,5 @@
 import Character.ST_PlayerProjectile;
+import Components.ST_HealthComponent;
 import Core.ST_Statics;
 
 class ASTShip : APawn
@@ -29,6 +30,10 @@ class ASTShip : APawn
 
     UPROPERTY(DefaultComponent, Category = "Components")
     UInputComponent PlayerInputComponent;
+
+	UPROPERTY(DefaultComponent)
+	USTHealthComponent HealthComponent;
+	default HealthComponent.MaxHealth = 3.0f;
 
 	UPROPERTY(Category = "Ship Movement")
 	float ShipSpeed = 100.0f;
@@ -69,6 +74,8 @@ class ASTShip : APawn
 	//Projectile Trigger Local Variables
 	float LastProjectileShot;
     float TimeBetweenShots;
+
+	default Tags.Add(n"ship");
 
 
 	UFUNCTION(BlueprintOverride)

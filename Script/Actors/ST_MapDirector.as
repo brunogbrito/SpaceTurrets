@@ -1,4 +1,4 @@
-class ASTMapBorder : AActor
+class ASTMapDirector : AActor
 {
 	UPROPERTY(DefaultComponent, RootComponent)
 	USceneComponent Root;
@@ -52,22 +52,22 @@ class ASTMapBorder : AActor
 
 	float MapScaleDivision = 15.0f;
 
+
+	/*** FUNCTIONS ***/
+
 	UFUNCTION(BlueprintOverride)
 	void ConstructionScript()
 	{
+		TopCollision.RelativeLocation = FVector(0.0f, MapSize, 0.0f);
+		TopCollision.RelativeScale3D = FVector(MapSize/MapScaleDivision, 1.0f, 3.0f);
 
-	TopCollision.RelativeLocation = FVector(0.0f, MapSize, 0.0f);
-	TopCollision.RelativeScale3D = FVector(MapSize/MapScaleDivision, 1.0f, 3.0f);
+		BottomCollision.RelativeLocation = FVector(0.0f, -MapSize, 0.0f);
+		BottomCollision.RelativeScale3D = FVector(MapSize/MapScaleDivision, 1.0f, 3.0f);
 
-	BottomCollision.RelativeLocation = FVector(0.0f, -MapSize, 0.0f);
-	BottomCollision.RelativeScale3D = FVector(MapSize/MapScaleDivision, 1.0f, 3.0f);
+		RightCollision.RelativeLocation = FVector(MapSize, 0.0f, 0.0f);
+		RightCollision.RelativeScale3D = FVector(1.0f, MapSize/MapScaleDivision, 3.0f);
 
-	RightCollision.RelativeLocation = FVector(MapSize, 0.0f, 0.0f);
-	RightCollision.RelativeScale3D = FVector(1.0f, MapSize/MapScaleDivision, 3.0f);
-
-	LeftCollision.RelativeLocation = FVector(-MapSize, 0.0f, 0.0f);
-	LeftCollision.RelativeScale3D = FVector(1.0f, MapSize/MapScaleDivision, 3.0f);
-
+		LeftCollision.RelativeLocation = FVector(-MapSize, 0.0f, 0.0f);
+		LeftCollision.RelativeScale3D = FVector(1.0f, MapSize/MapScaleDivision, 3.0f);
 	}
-
 }

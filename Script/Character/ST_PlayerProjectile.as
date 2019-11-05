@@ -14,7 +14,7 @@ class ASTPlayerProjectile : AActor
 
 	UPROPERTY(DefaultComponent)
 	UProjectileMovementComponent ProjectileMovementComponent;
-	default ProjectileMovementComponent.InitialSpeed = 2000.0f;
+	default ProjectileMovementComponent.InitialSpeed = 2500.0f;
 	default ProjectileMovementComponent.ProjectileGravityScale = 0.0f;
 
 	UPROPERTY()

@@ -8,6 +8,7 @@ class ASTShip : APawn
 	UBoxComponent ShipCollisionBox;
 	default ShipCollisionBox.CollisionEnabled = ECollisionEnabled::QueryOnly;
 	default ShipCollisionBox.CollisionObjectType = ECollisionChannel::ECC_WorldDynamic;
+	default ShipCollisionBox.SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 
 	UPROPERTY(DefaultComponent, Category = "Components")
 	USceneComponent ShipHullMeshes;
@@ -48,7 +49,7 @@ class ASTShip : APawn
     FTimerHandle TimeHandle_EachProjectileTimer;
 
 	UPROPERTY(Category = "Projectile")
-	float ProjectileRPM = 450.0f;
+	float ProjectileRPM = 370.0f;
 
 	UPROPERTY(Category = "Projectile")
 	USoundBase SShipShot;

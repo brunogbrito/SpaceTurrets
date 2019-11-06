@@ -2,6 +2,7 @@ import Core.ST_Statics;
 import Components.ST_HealthComponent;
 import Core.ST_GameState;
 import Character.ST_Ship;
+import Actors.ST_EnemyProjectileBase;
 
 enum EEnemyType
 {
@@ -49,6 +50,9 @@ class ASTBaseEnemy : APawn
 	UPROPERTY()
 	EEnemyType EnumEnemyType = EEnemyType::STATIC;
 
+	UPROPERTY()
+	TSubclassOf<ASTEnemyProjectileBase> ProjectileClass;
+
 	bool bIsMoving;
 	bool bHomeMissile;
 
@@ -69,6 +73,7 @@ class ASTBaseEnemy : APawn
 		{
 			AddMovementAndRotation();
 		}
+			SpawnProjectile(0.0f, ForwardArrow, true);
 	}
 
 	UFUNCTION()
@@ -102,5 +107,28 @@ class ASTBaseEnemy : APawn
 		CurrentActorRotation = FMath::RInterpTo(CurrentActorRotation, FRotator::MakeFromX(PlayerShip.GetActorLocation() - GetActorLocation()), 
 			Gameplay::GetWorldDeltaSeconds(), RotationInterpSpeed);
 		SetActorRotation(CurrentActorRotation);
+	}
+
+	UFUNCTION()
+	void SpawnProjectile(float ProjectileInitialSpeed, UArrowComponent Arrow, bool bTraceline)
+	{
+		if(bTraceline)
+		{
+			TArray<AActor> IgnoredActors;
+			IgnoredActors.Add(this);
+
+			FHitResult Hit;
+			if(System::LineTraceSingle(GetActorLocation(), GetActorRotation().GetForwardVector() * 50000.0f, 
+				ETraceTypeQuery::Visibility, false, IgnoredActors, EDrawDebugTrace::None, Hit, true, FLinearColor::Red, FLinearColor::Green, 1.0f))
+			{
+				System::DrawDebugLine(Hit.TraceStart, Hit.TraceEnd, FLinearColor::Blue, 1.0f, 2.0f);
+				
+				//Spawn Projectile
+				if(Hit.Actor == PlayerShip)
+				{
+					AActor SpawnedProjectile = SpawnActor(ProjectileClass, GetActorLocation(), GetActorRotation());
+				}
+			}
+		}
 	}
 }

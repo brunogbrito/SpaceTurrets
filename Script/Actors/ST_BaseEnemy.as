@@ -1,3 +1,4 @@
+import Core.ST_Statics;
 import Components.ST_HealthComponent;
 import Core.ST_GameState;
 import Character.ST_Ship;
@@ -12,17 +13,23 @@ enum EEnemyType
 
 class ASTBaseEnemy : APawn
 {
-	UPROPERTY(DefaultComponent)
+	UPROPERTY(DefaultComponent, Category = "Collision")
 	UCapsuleComponent CapsuleCollision;
 	default CapsuleCollision.SetCollisionObjectType(ECollisionChannel::EnemyAI);
 	default CapsuleCollision.SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	default CapsuleCollision.SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
 
-	UPROPERTY(DefaultComponent)
+	UPROPERTY(DefaultComponent, Category = "StaticMesh")
 	UStaticMeshComponent EnemyMesh;
 
-	UPROPERTY(DefaultComponent)
+	UPROPERTY(DefaultComponent, Category = "Components")
+	UFloatingPawnMovement FloatingMovementComponent;
+
+	UPROPERTY(DefaultComponent, Category = "Components")
 	USTHealthComponent HealthComponent;
+
+	UPROPERTY(DefaultComponent)
+	UArrowComponent ForwardArrow;
 
 	UPROPERTY()
 	ASTGameState GS;
@@ -34,7 +41,10 @@ class ASTBaseEnemy : APawn
 	float EnemySpeed;
 
 	UPROPERTY()
-	FRotator ActorRotation;
+	float RotationInterpSpeed;
+
+	UPROPERTY()
+	FRotator CurrentActorRotation;
 
 	UPROPERTY()
 	EEnemyType EnumEnemyType = EEnemyType::STATIC;
@@ -49,6 +59,7 @@ class ASTBaseEnemy : APawn
 	{
 		GS = Cast<ASTGameState>(Gameplay::GetGameState());
 		PlayerShip = Cast<ASTShip>(Gameplay::GetPlayerPawn(0));
+		InitializeEnemy();
 	}
 
 	UFUNCTION(BlueprintOverride)
@@ -71,6 +82,7 @@ class ASTBaseEnemy : APawn
 			
 			case EEnemyType::MOVEABLE:
 			bIsMoving = true;
+			//System::MoveComponentTo(RootComponent, PlayerShip.GetActorLocation() - GetActorLocation(), FRotator::MakeFromX(PlayerShip.GetActorLocation() - GetActorLocation()), true, true, 5.0f, true, EMoveComponentAction::Move, FLatentActionInfo());
 			break;
 
 			case EEnemyType::RANDOM_MOTION:
@@ -86,6 +98,9 @@ class ASTBaseEnemy : APawn
 	UFUNCTION()
 	void AddMovementAndRotation()
 	{
-		AddMovementInput(PlayerShip.GetActorLocation()-GetActorLocation(), Gameplay::GetWorldDeltaSeconds()*EnemySpeed);
+		AddMovementInput(PlayerShip.GetActorLocation() - GetActorLocation(), Gameplay::GetWorldDeltaSeconds() * EnemySpeed);
+		CurrentActorRotation = FMath::RInterpTo(CurrentActorRotation, FRotator::MakeFromX(PlayerShip.GetActorLocation() - GetActorLocation()), 
+			Gameplay::GetWorldDeltaSeconds(), RotationInterpSpeed);
+		SetActorRotation(CurrentActorRotation);
 	}
 }

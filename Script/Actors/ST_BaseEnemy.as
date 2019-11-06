@@ -4,12 +4,19 @@ import Core.ST_GameState;
 import Character.ST_Ship;
 import Actors.ST_EnemyProjectileBase;
 
-enum EEnemyType
+enum EEnemyMovementType
 {
 	STATIC,
 	MOVEABLE,
-	RANDOM_MOTION,
-	SHIELD
+	RANDOM_MOTION
+};
+
+enum EEnemyShootingType
+{
+	NONE,
+	REGULAR,
+	SPIRAL,
+	CROSS
 };
 
 class ASTBaseEnemy : APawn
@@ -19,6 +26,9 @@ class ASTBaseEnemy : APawn
 	default CapsuleCollision.SetCollisionObjectType(ECollisionChannel::EnemyAI);
 	default CapsuleCollision.SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	default CapsuleCollision.SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
+
+	UPROPERTY(DefaultComponent)
+	USceneComponent ProjectileRotator;
 
 	UPROPERTY(DefaultComponent, Category = "StaticMesh")
 	UStaticMeshComponent EnemyMesh;
@@ -48,7 +58,16 @@ class ASTBaseEnemy : APawn
 	FRotator CurrentActorRotation;
 
 	UPROPERTY()
-	EEnemyType EnumEnemyType = EEnemyType::STATIC;
+	bool bHasShield;
+
+	UPROPERTY()
+	EEnemyMovementType EnumEnemyMovement = EEnemyMovementType::STATIC;
+
+	UPROPERTY()
+	EEnemyShootingType EnumEnemyShooting = EEnemyShootingType::REGULAR;
+
+	UPROPERTY()
+	float ProjectileRotationSpeed = 100.0f;
 
 	UPROPERTY()
 	TSubclassOf<ASTEnemyProjectileBase> ProjectileClass;
@@ -65,6 +84,7 @@ class ASTBaseEnemy : APawn
 
 	bool bIsMoving;
 	bool bHomeMissile;
+	TArray<AActor> IgnoredActors;
 
 	default Tags.Add(n"enemy");
 
@@ -91,23 +111,21 @@ class ASTBaseEnemy : APawn
 	UFUNCTION()
 	void InitializeEnemy()
 	{
-		switch(EnumEnemyType)
+		IgnoredActors.Add(this);
+		
+		switch(EnumEnemyMovement)
 		{
-			case EEnemyType::STATIC:
+			case EEnemyMovementType::STATIC:
 			bIsMoving = false;
 			break;
 			
-			case EEnemyType::MOVEABLE:
+			case EEnemyMovementType::MOVEABLE:
 			bIsMoving = true;
 			//System::MoveComponentTo(RootComponent, PlayerShip.GetActorLocation() - GetActorLocation(), FRotator::MakeFromX(PlayerShip.GetActorLocation() - GetActorLocation()), true, true, 5.0f, true, EMoveComponentAction::Move, FLatentActionInfo());
 			break;
 
-			case EEnemyType::RANDOM_MOTION:
+			case EEnemyMovementType::RANDOM_MOTION:
 			bIsMoving = FMath::RandBool();
-			break;
-
-			case EEnemyType::SHIELD:
-			bIsMoving = true;
 			break;
 		}
 		InitializeShooterTimer();
@@ -122,9 +140,16 @@ class ASTBaseEnemy : APawn
 	UFUNCTION()
 	void AddRotation()
 	{
-		CurrentActorRotation = FMath::RInterpTo(CurrentActorRotation, FRotator::MakeFromX(PlayerShip.GetActorLocation() - GetActorLocation()), 
-			Gameplay::GetWorldDeltaSeconds(), RotationInterpSpeed);
-		SetActorRotation(CurrentActorRotation);
+		if(PlayerShip != nullptr)
+		{
+			CurrentActorRotation = FMath::RInterpTo(CurrentActorRotation, FRotator::MakeFromX(PlayerShip.GetActorLocation() - GetActorLocation()), 
+				Gameplay::GetWorldDeltaSeconds(), RotationInterpSpeed);
+			SetActorRotation(CurrentActorRotation);
+		}
+		if(ProjectileRotationSpeed != 0)
+		{
+			ProjectileRotator.AddWorldRotation(FRotator(0.0f, Gameplay::GetWorldDeltaSeconds() * ProjectileRotationSpeed, 0.0f));
+		}
 	}
 
 	UFUNCTION()
@@ -136,33 +161,58 @@ class ASTBaseEnemy : APawn
 	UFUNCTION()
 	void ShootRoutine()
 	{
-		if(bScanForPlayer)
+		switch(EnumEnemyShooting)
 		{
-			TArray<AActor> IgnoredActors;
-			IgnoredActors.Add(this);
+			case EEnemyShootingType::NONE:
+				System::ClearAndInvalidateTimerHandle(TimeHandle_Shooting);
+				break;
 
-			FHitResult Hit;
-			if(System::LineTraceSingle(GetActorLocation(), GetActorRotation().GetForwardVector() * 50000.0f, 
-				ETraceTypeQuery::Enemy, false, IgnoredActors, EDrawDebugTrace::None, Hit, true, FLinearColor::Red, FLinearColor::Green, 1.0f))
-			{
-				// System::DrawDebugLine(Hit.TraceStart, Hit.TraceEnd, FLinearColor::Blue, 1.0f, 2.0f);
-				
-				//Spawn Projectile
-				if(Hit.Actor == PlayerShip)
+			case EEnemyShootingType::REGULAR:
+				if(bScanForPlayer)
 				{
-					SpawnProjectile();
+					FHitResult Hit;
+					if(System::LineTraceSingle(GetActorLocation(), GetActorRotation().GetForwardVector() * 50000.0f, 
+						ETraceTypeQuery::Enemy, false, IgnoredActors, EDrawDebugTrace::None, Hit, true, FLinearColor::Red, FLinearColor::Green, 1.0f))
+					{
+						// System::DrawDebugLine(Hit.TraceStart, Hit.TraceEnd, FLinearColor::Blue, 1.0f, 2.0f);
+						//Spawn Projectile
+						if(Hit.Actor == PlayerShip)
+						{
+							SpawnProjectile(FRotator(0.0f, ActorRotation.Yaw, 0.0f));
+						}
+					}
 				}
-			}
-		}
-		else
-		{
-			SpawnProjectile();
+				else
+				{
+					SpawnProjectile(FRotator(0.0f, ActorRotation.Yaw, 0.0f));
+				}
+				break;
+			
+			case EEnemyShootingType::SPIRAL:
+				SpawnProjectile(FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw, 0.0f));
+				SpawnProjectile(FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw + 180.0f, 0.0f));
+				break;
+			
+			case EEnemyShootingType::CROSS:
+				SpawnProjectile(FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw, 0.0f));
+				SpawnProjectile(FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw + 90.0f, 0.0f));
+				SpawnProjectile(FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw + 180.0f, 0.0f));
+				SpawnProjectile(FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw + 270.0f, 0.0f));
+				break;
 		}
 	}
 
 	UFUNCTION()
-	void SpawnProjectile()
+	void SpawnProjectile(FRotator ProjectileRotation)
 	{
-		AActor SpawnedProjectile = SpawnActor(ProjectileClass, GetActorLocation(), FRotator(0.0f, ActorRotation.Yaw, 0.0f));
+		if(ProjectileClass.IsValid())
+		{
+			AActor SpawnedProjectile = SpawnActor(ProjectileClass, GetActorLocation(), ProjectileRotation);
+		}
+		else
+		{
+			Print("Projectile Class is NULL", 5.0f);
+		}
+
 	}
 }

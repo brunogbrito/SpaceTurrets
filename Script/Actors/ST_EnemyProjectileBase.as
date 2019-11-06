@@ -3,6 +3,8 @@ import Character.ST_PlayerProjectile;
 class ASTEnemyProjectileBase : ASTPlayerProjectile
 {
 	default ProjectileMovementComponent.InitialSpeed = 750.0f;
+
+	default Tags.Add(n"enemy");
 	
 	UFUNCTION(BlueprintOverride)
 	void ActorBeginOverlap(AActor OtherActor)

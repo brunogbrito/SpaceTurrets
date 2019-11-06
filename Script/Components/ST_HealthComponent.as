@@ -22,6 +22,14 @@ class USTHealthComponent : UActorComponent
 	FOnDeath OnDeath; 
 
 
+	/*** FUNCTIONS ***/
+
+	UFUNCTION(BlueprintOverride)
+	void BeginPlay()
+	{
+		Health = MaxHealth;
+	}
+
 	UFUNCTION()
 	void ApplyDamage(AActor DamagedActor, float Damage, const UDamageType DamageType, AController InstigatedBy, AActor DamageCauser)
 	{

@@ -23,9 +23,6 @@ class ASTPlayerProjectile : AActor
 	UPROPERTY()
 	UDamageType DamageType;
 
-	UPROPERTY()
-	AActor MyInstigator;
-
 	default InitialLifeSpan = 3.0f;
 
 	UFUNCTION(BlueprintOverride)

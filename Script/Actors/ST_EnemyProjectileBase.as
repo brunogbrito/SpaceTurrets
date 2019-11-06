@@ -1,13 +1,16 @@
-class ASTEnemyProjectileBase : AActor
+import Character.ST_PlayerProjectile;
+
+class ASTEnemyProjectileBase : ASTPlayerProjectile
 {
-	UPROPERTY(DefaultComponent, RootComponent)
-	UBoxComponent CollisionBox;
-
-	UPROPERTY(DefaultComponent)
-	UStaticMeshComponent ProjectileMesh;
-
-	UPROPERTY(DefaultComponent)
-	UProjectileMovementComponent ProjectileMovementComponent;
-
-
+	default ProjectileMovementComponent.InitialSpeed = 750.0f;
+	
+	UFUNCTION(BlueprintOverride)
+	void ActorBeginOverlap(AActor OtherActor)
+	{
+		if(OtherActor != nullptr && !OtherActor.ActorHasTag(n"enemy"))
+		{
+			OtherActor.AnyDamage(ProjectileDamage, DamageType, GetInstigatorController(), this);
+			DestroyActor();
+		}
+	}
 }

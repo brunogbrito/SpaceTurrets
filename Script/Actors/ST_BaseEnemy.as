@@ -53,8 +53,20 @@ class ASTBaseEnemy : APawn
 	UPROPERTY()
 	TSubclassOf<ASTEnemyProjectileBase> ProjectileClass;
 
+	UPROPERTY()
+	bool bScanForPlayer;
+
+	UPROPERTY()
+	FTimerHandle TimeHandle_Shooting;
+
+	UPROPERTY()
+	float TimeBetweenShots = 0.75f;
+
+
 	bool bIsMoving;
 	bool bHomeMissile;
+
+	default Tags.Add(n"enemy");
 
 	/*** FUNCTION ***/
 
@@ -69,11 +81,11 @@ class ASTBaseEnemy : APawn
 	UFUNCTION(BlueprintOverride)
 	void Tick(float DeltaSeconds)
 	{
+		AddRotation();
 		if(bIsMoving)
 		{
-			AddMovementAndRotation();
+			AddMovement();
 		}
-			SpawnProjectile(0.0f, ForwardArrow, true);
 	}
 
 	UFUNCTION()
@@ -98,37 +110,59 @@ class ASTBaseEnemy : APawn
 			bIsMoving = true;
 			break;
 		}
+		InitializeShooterTimer();
 	}
 
 	UFUNCTION()
-	void AddMovementAndRotation()
+	void AddMovement()
 	{
-		AddMovementInput(PlayerShip.GetActorLocation() - GetActorLocation(), Gameplay::GetWorldDeltaSeconds() * EnemySpeed);
+		AddMovementInput(FVector(PlayerShip.GetActorLocation().X, PlayerShip.GetActorLocation().Y, ActorLocation.Z) - GetActorLocation(), Gameplay::GetWorldDeltaSeconds() * EnemySpeed);
+	}
+
+	UFUNCTION()
+	void AddRotation()
+	{
 		CurrentActorRotation = FMath::RInterpTo(CurrentActorRotation, FRotator::MakeFromX(PlayerShip.GetActorLocation() - GetActorLocation()), 
 			Gameplay::GetWorldDeltaSeconds(), RotationInterpSpeed);
 		SetActorRotation(CurrentActorRotation);
 	}
 
 	UFUNCTION()
-	void SpawnProjectile(float ProjectileInitialSpeed, UArrowComponent Arrow, bool bTraceline)
+	void InitializeShooterTimer()
 	{
-		if(bTraceline)
+		TimeHandle_Shooting = System::SetTimer(this, n"ShootRoutine", TimeBetweenShots, true, 0.0f, 0.0f);
+	}
+
+	UFUNCTION()
+	void ShootRoutine()
+	{
+		if(bScanForPlayer)
 		{
 			TArray<AActor> IgnoredActors;
 			IgnoredActors.Add(this);
 
 			FHitResult Hit;
 			if(System::LineTraceSingle(GetActorLocation(), GetActorRotation().GetForwardVector() * 50000.0f, 
-				ETraceTypeQuery::Visibility, false, IgnoredActors, EDrawDebugTrace::None, Hit, true, FLinearColor::Red, FLinearColor::Green, 1.0f))
+				ETraceTypeQuery::Enemy, false, IgnoredActors, EDrawDebugTrace::None, Hit, true, FLinearColor::Red, FLinearColor::Green, 1.0f))
 			{
-				System::DrawDebugLine(Hit.TraceStart, Hit.TraceEnd, FLinearColor::Blue, 1.0f, 2.0f);
+				// System::DrawDebugLine(Hit.TraceStart, Hit.TraceEnd, FLinearColor::Blue, 1.0f, 2.0f);
 				
 				//Spawn Projectile
 				if(Hit.Actor == PlayerShip)
 				{
-					AActor SpawnedProjectile = SpawnActor(ProjectileClass, GetActorLocation(), GetActorRotation());
+					SpawnProjectile();
 				}
 			}
 		}
+		else
+		{
+			SpawnProjectile();
+		}
+	}
+
+	UFUNCTION()
+	void SpawnProjectile()
+	{
+		AActor SpawnedProjectile = SpawnActor(ProjectileClass, GetActorLocation(), FRotator(0.0f, ActorRotation.Yaw, 0.0f));
 	}
 }

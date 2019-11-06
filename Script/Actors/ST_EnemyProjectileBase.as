@@ -27,7 +27,7 @@ class ASTEnemyProjectileBase : ASTPlayerProjectile
 	FRotator CurrentActorRotation;
 
 	UPROPERTY()
-	float HommingProjectileSpeed;
+	float HommingProjectileSpeed = 20.0f;
 
 	UPROPERTY()
 	float RotationInterpSpeed = 50.0f;
@@ -45,11 +45,10 @@ class ASTEnemyProjectileBase : ASTPlayerProjectile
 
 			case EProjectileType::FULLDAMAGE:
 				bCanCollideWithProjectiles = false;
-				bFollowPlayer = true;
 				break;
 
 			case EProjectileType::HOMING:
-				ProjectileMovementComponent.SetActive(false);
+				bFollowPlayer = true;
 				bCanCollideWithProjectiles = true;
 				break;
 		}
@@ -58,7 +57,18 @@ class ASTEnemyProjectileBase : ASTPlayerProjectile
 	UFUNCTION(BlueprintOverride)
 	void BeginPlay()
 	{
-		PlayerShip = Cast<ASTShip>(Gameplay::GetPlayerPawn(0));
+		if(bFollowPlayer)
+		{
+			PlayerShip = Cast<ASTShip>(Gameplay::GetPlayerPawn(0));
+			SetHomingTarget(PlayerShip.RootComponent);
+			ProjectileMovementComponent.SetbIsHomingProjectile(true);
+		}
+	}
+
+	UFUNCTION(BlueprintEvent)
+	void SetHomingTarget(USceneComponent HomingTarget)
+	{
+		return;
 	}
 	
 	UFUNCTION(BlueprintOverride)
@@ -73,7 +83,7 @@ class ASTEnemyProjectileBase : ASTPlayerProjectile
 			}
 			else
 			{
-				DestroyActor();
+				DestroyActor();			
 			}
 		}
 	}
@@ -81,16 +91,6 @@ class ASTEnemyProjectileBase : ASTPlayerProjectile
 	UFUNCTION(BlueprintOverride)
 	void Tick(float DeltaSeconds)
 	{
-		if(bFollowPlayer)
-		{
-			if(PlayerShip != nullptr)
-			{
-				CurrentActorRotation = FMath::RInterpTo(CurrentActorRotation, FRotator::MakeFromX(PlayerShip.GetActorLocation() - GetActorLocation()), 
-					Gameplay::GetWorldDeltaSeconds(), RotationInterpSpeed);
-				SetActorRotation(CurrentActorRotation);
 
-				AddMovementInput(FVector(PlayerShip.GetActorLocation().X, PlayerShip.GetActorLocation().Y, ActorLocation.Z) - GetActorLocation(), Gameplay::GetWorldDeltaSeconds() * HommingProjectileSpeed);
-			}
-		}
 	}
 }

@@ -28,6 +28,9 @@ class ASTBaseEnemy : APawn
 	default CapsuleCollision.SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
 
 	UPROPERTY(DefaultComponent)
+	USceneComponent ProjectileSpawnLocation;
+
+	UPROPERTY(DefaultComponent)
 	USceneComponent ProjectileRotator;
 
 	UPROPERTY(DefaultComponent, Category = "StaticMesh")
@@ -70,7 +73,13 @@ class ASTBaseEnemy : APawn
 	float ProjectileRotationSpeed = 100.0f;
 
 	UPROPERTY()
-	TSubclassOf<ASTEnemyProjectileBase> ProjectileClass;
+	TSubclassOf<ASTEnemyProjectileBase> PrimaryProjectileClass;
+
+	UPROPERTY()
+	TSubclassOf<ASTEnemyProjectileBase> SecondaryProjectileClass;
+
+	UPROPERTY()
+	bool bAlternateProjectiles;
 
 	UPROPERTY()
 	bool bScanForPlayer;
@@ -84,6 +93,7 @@ class ASTBaseEnemy : APawn
 
 	bool bIsMoving;
 	bool bHomeMissile;
+	bool bIsAlternateProjectile;
 	TArray<AActor> IgnoredActors;
 
 	default Tags.Add(n"enemy");
@@ -121,13 +131,13 @@ class ASTBaseEnemy : APawn
 			
 			case EEnemyMovementType::MOVEABLE:
 			bIsMoving = true;
-			//System::MoveComponentTo(RootComponent, PlayerShip.GetActorLocation() - GetActorLocation(), FRotator::MakeFromX(PlayerShip.GetActorLocation() - GetActorLocation()), true, true, 5.0f, true, EMoveComponentAction::Move, FLatentActionInfo());
 			break;
 
 			case EEnemyMovementType::RANDOM_MOTION:
 			bIsMoving = FMath::RandBool();
 			break;
 		}
+		bIsAlternateProjectile = false;
 		InitializeShooterTimer();
 	}
 
@@ -178,41 +188,70 @@ class ASTBaseEnemy : APawn
 						//Spawn Projectile
 						if(Hit.Actor == PlayerShip)
 						{
-							SpawnProjectile(FRotator(0.0f, ActorRotation.Yaw, 0.0f));
+							SpawnProjectile(ProjectileSpawnLocation.GetWorldLocation(), FRotator(0.0f, ActorRotation.Yaw, 0.0f));
 						}
 					}
 				}
 				else
 				{
-					SpawnProjectile(FRotator(0.0f, ActorRotation.Yaw, 0.0f));
+					SpawnProjectile(ProjectileSpawnLocation.GetWorldLocation(), FRotator(0.0f, ActorRotation.Yaw, 0.0f));
 				}
 				break;
 			
 			case EEnemyShootingType::SPIRAL:
-				SpawnProjectile(FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw, 0.0f));
-				SpawnProjectile(FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw + 180.0f, 0.0f));
+				SpawnProjectile(GetActorLocation(), FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw, 0.0f));
+				SpawnProjectile(GetActorLocation(), FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw + 180.0f, 0.0f));
 				break;
 			
 			case EEnemyShootingType::CROSS:
-				SpawnProjectile(FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw, 0.0f));
-				SpawnProjectile(FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw + 90.0f, 0.0f));
-				SpawnProjectile(FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw + 180.0f, 0.0f));
-				SpawnProjectile(FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw + 270.0f, 0.0f));
+				SpawnProjectile(GetActorLocation(), FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw, 0.0f));
+				SpawnProjectile(GetActorLocation(), FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw + 90.0f, 0.0f));
+				SpawnProjectile(GetActorLocation(), FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw + 180.0f, 0.0f));
+				SpawnProjectile(GetActorLocation(), FRotator(0.0f, ProjectileRotator.RelativeRotation.Yaw + 270.0f, 0.0f));
 				break;
 		}
 	}
 
 	UFUNCTION()
-	void SpawnProjectile(FRotator ProjectileRotation)
+	void SpawnProjectile(FVector SpawnLocation, FRotator ProjectileRotation)
 	{
-		if(ProjectileClass.IsValid())
+		if(bAlternateProjectiles)
 		{
-			AActor SpawnedProjectile = SpawnActor(ProjectileClass, GetActorLocation(), ProjectileRotation);
+			if(!bIsAlternateProjectile)
+			{
+				if(PrimaryProjectileClass.IsValid())
+				{
+					AActor SpawnedProjectile = SpawnActor(PrimaryProjectileClass, SpawnLocation, ProjectileRotation);
+					bIsAlternateProjectile = true;
+				}
+				else
+				{
+					Print("Primary Projectile Class is NULL. Please assign a projectile class", 5.0f);
+				}
+			}
+			else
+			{
+				if(SecondaryProjectileClass.IsValid())
+				{
+					AActor SpawnedProjectile = SpawnActor(SecondaryProjectileClass, SpawnLocation, ProjectileRotation);
+					bIsAlternateProjectile = false;
+				}
+				else
+				{
+					Print("Primary Projectile Class is NULL. Please assign a projectile class", 5.0f);
+				}
+			}
 		}
 		else
 		{
-			Print("Projectile Class is NULL", 5.0f);
+			if(PrimaryProjectileClass.IsValid())
+			{
+				AActor SpawnedProjectile = SpawnActor(PrimaryProjectileClass, SpawnLocation, ProjectileRotation);
+			}
+			else
+			{
+				Print("Primary Projectile Class is NULL", 5.0f);
+			}
 		}
-
 	}
 }

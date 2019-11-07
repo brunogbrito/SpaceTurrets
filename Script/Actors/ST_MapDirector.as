@@ -48,7 +48,25 @@ class ASTMapDirector : AActor
 	default LeftMesh.RelativeScale3D = FVector(0.25f);
 
 	UPROPERTY()
+	bool bDevMode = false;
+
+	UPROPERTY()
 	float MapSize = 1000.0f;
+
+	UPROPERTY()
+	float CellDistance = 200.0f;
+
+	UPROPERTY()
+	float CellArea = 25.0f;
+
+	UPROPERTY(BlueprintReadWrite)
+	int IndexMultiplier = 1;
+
+	UPROPERTY()
+	TArray<USceneComponent> SlotsLocation;
+
+	UPROPERTY()
+	bool bShowCellsNumbers = true;
 
 	float MapScaleDivision = 15.0f;
 
@@ -69,5 +87,14 @@ class ASTMapDirector : AActor
 
 		LeftCollision.RelativeLocation = FVector(-MapSize, 0.0f, 0.0f);
 		LeftCollision.RelativeScale3D = FVector(1.0f, MapSize/MapScaleDivision, 3.0f);
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void BeginPlay()
+	{
+		if(!bDevMode)
+		{
+			bShowCellsNumbers = false;
+		}
 	}
 }

@@ -87,10 +87,4 @@ class ASTEnemyProjectileBase : ASTPlayerProjectile
 			}
 		}
 	}
-
-	UFUNCTION(BlueprintOverride)
-	void Tick(float DeltaSeconds)
-	{
-
-	}
 }

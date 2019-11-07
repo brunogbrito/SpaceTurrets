@@ -72,7 +72,7 @@ class ASTMapDirector : AActor
 	UFUNCTION(BlueprintOverride)
 	void ConstructionScript()
 	{
-		InitializeMapBorders();
+		InitializeMapBorders(MapSize);
 		InitializeGrid();
 	}
 
@@ -86,26 +86,26 @@ class ASTMapDirector : AActor
 	}
 
 	UFUNCTION()
-	void InitializeMapBorders()
+	void InitializeMapBorders(float NewMapSize)
 	{
-		TopCollision.RelativeLocation = FVector(0.0f, MapSize, 0.0f);
-		TopCollision.RelativeScale3D = FVector(MapSize/MapScaleDivision, 1.0f, 3.0f);
+		TopCollision.RelativeLocation = FVector(0.0f, NewMapSize, 0.0f);
+		TopCollision.RelativeScale3D = FVector(NewMapSize/MapScaleDivision, 1.0f, 3.0f);
 
-		BottomCollision.RelativeLocation = FVector(0.0f, -MapSize, 0.0f);
-		BottomCollision.RelativeScale3D = FVector(MapSize/MapScaleDivision, 1.0f, 3.0f);
+		BottomCollision.RelativeLocation = FVector(0.0f, -NewMapSize, 0.0f);
+		BottomCollision.RelativeScale3D = FVector(NewMapSize/MapScaleDivision, 1.0f, 3.0f);
 
-		RightCollision.RelativeLocation = FVector(MapSize, 0.0f, 0.0f);
-		RightCollision.RelativeScale3D = FVector(1.0f, MapSize/MapScaleDivision, 3.0f);
+		RightCollision.RelativeLocation = FVector(NewMapSize, 0.0f, 0.0f);
+		RightCollision.RelativeScale3D = FVector(1.0f, NewMapSize/MapScaleDivision, 3.0f);
 
-		LeftCollision.RelativeLocation = FVector(-MapSize, 0.0f, 0.0f);
-		LeftCollision.RelativeScale3D = FVector(1.0f, MapSize/MapScaleDivision, 3.0f);
+		LeftCollision.RelativeLocation = FVector(-NewMapSize, 0.0f, 0.0f);
+		LeftCollision.RelativeScale3D = FVector(1.0f, NewMapSize/MapScaleDivision, 3.0f);
 	}
 
 	UFUNCTION()
 	void InitializeGrid()
 	{
 		IndexMultiplier = 1;
-		
+
 		for(int i = 0; i < SlotsLocation.Num(); i++)
 		{
 			if(SlotsLocation[i] != nullptr)

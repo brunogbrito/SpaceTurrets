@@ -56,10 +56,6 @@ class ASTMapDirector : AActor
 	UPROPERTY()
 	float CellDistance = 200.0f;
 
-	UPROPERTY()
-	float CellArea = 25.0f;
-
-	UPROPERTY(BlueprintReadWrite)
 	int IndexMultiplier = 1;
 
 	UPROPERTY()
@@ -76,6 +72,22 @@ class ASTMapDirector : AActor
 	UFUNCTION(BlueprintOverride)
 	void ConstructionScript()
 	{
+		InitializeMapBorders();
+		InitializeGrid();
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void BeginPlay()
+	{
+		if(!bDevMode)
+		{
+			bShowCellsNumbers = false;
+		}
+	}
+
+	UFUNCTION()
+	void InitializeMapBorders()
+	{
 		TopCollision.RelativeLocation = FVector(0.0f, MapSize, 0.0f);
 		TopCollision.RelativeScale3D = FVector(MapSize/MapScaleDivision, 1.0f, 3.0f);
 
@@ -89,12 +101,66 @@ class ASTMapDirector : AActor
 		LeftCollision.RelativeScale3D = FVector(1.0f, MapSize/MapScaleDivision, 3.0f);
 	}
 
-	UFUNCTION(BlueprintOverride)
-	void BeginPlay()
+	UFUNCTION()
+	void InitializeGrid()
 	{
-		if(!bDevMode)
+		IndexMultiplier = 1;
+		
+		for(int i = 0; i < SlotsLocation.Num(); i++)
 		{
-			bShowCellsNumbers = false;
+			if(SlotsLocation[i] != nullptr)
+			{
+				SlotsLocation[i].DestroyComponent(SlotsLocation[i]);
+			}			
+		}
+		SlotsLocation.Empty();
+
+		for(int i = 0; i < FMath::Square(GetNumberOfRows()); i++)
+		{
+			if(i <= GetNumberOfRows()*IndexMultiplier)
+			{
+				AddCustomSceneComponent(GetSceneComponentRelativeLocation(i, IndexMultiplier), IndexMultiplier);
+			}
+			else
+			{
+				IndexMultiplier++;
+				AddCustomSceneComponent(GetSceneComponentRelativeLocation(i, IndexMultiplier), IndexMultiplier);
+			}
 		}
 	}
+
+	UFUNCTION()
+	void AddCustomSceneComponent(FVector RelativeLocation, int CellIndex)
+	{
+		USceneComponent MySceneComponent = USceneComponent::Create(this);
+		MySceneComponent.SetRelativeLocation(RelativeLocation);
+		SlotsLocation.Add(MySceneComponent);
+		if(bShowCellsNumbers)
+		{
+			AddTextRender(RelativeLocation, CellIndex);
+		}
+	}
+
+
+	/*** Math and Debug Functions ***/
+
+	UFUNCTION()
+	int GetNumberOfRows()
+	{
+		return (MapSize-200.0f)/(CellDistance/2.0f);
+	}
+
+	UFUNCTION()
+	FVector GetSceneComponentRelativeLocation(int LoopIndex, int CellMultiplierIndex)
+	{
+		FVector MyVector = FVector((MapSize-100.0f)-(CellDistance*CellMultiplierIndex), ((LoopIndex+1)*CellDistance)-((GetNumberOfRows()*CellMultiplierIndex)*CellDistance)+(MapSize-500.0f), 100.0f);
+		return MyVector;
+	}
+
+	UFUNCTION(BlueprintEvent)
+	void AddTextRender(FVector RelativeLocation, int CellIndex)
+	{
+		return;
+	}
+
 }

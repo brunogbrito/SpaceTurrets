@@ -1,3 +1,5 @@
+import Components.ST_LevelSpawnerComponent;
+
 class ASTMapDirector : AActor
 {
 	UPROPERTY(DefaultComponent, RootComponent)
@@ -47,16 +49,20 @@ class ASTMapDirector : AActor
 	default LeftMesh.CollisionEnabled = ECollisionEnabled::NoCollision;
 	default LeftMesh.RelativeScale3D = FVector(0.25f);
 
+	UPROPERTY(DefaultComponent)
+	USTLevelSpawnerComponent LevelSpawnerComponent;
+
 	UPROPERTY()
 	bool bDevMode = false;
+
+	UPROPERTY()
+	bool bLevelCreator = false;
 
 	UPROPERTY()
 	float MapSize = 1000.0f;
 
 	UPROPERTY()
 	float CellDistance = 200.0f;
-
-	int IndexMultiplier = 1;
 
 	UPROPERTY()
 	TArray<USceneComponent> SlotsLocation;
@@ -65,6 +71,7 @@ class ASTMapDirector : AActor
 	bool bShowCellsNumbers = true;
 
 	float MapScaleDivision = 15.0f;
+	int IndexMultiplier = 1;
 
 
 	/*** FUNCTIONS ***/
@@ -83,6 +90,17 @@ class ASTMapDirector : AActor
 		{
 			bShowCellsNumbers = false;
 		}
+		if(bLevelCreator)
+		{
+			InitializeLevelCreatorWidget();
+		}
+	}
+
+	UFUNCTION(BlueprintEvent)
+	void InitializeLevelCreatorWidget()
+	{
+		//This widget is being initialized in the blueprint class
+		return;
 	}
 
 	UFUNCTION()
@@ -141,6 +159,12 @@ class ASTMapDirector : AActor
 		{
 			AddTextRender(RelativeLocation, CellIndex);
 		}
+	}
+
+	UFUNCTION()
+	void StartLevelString()
+	{
+		// LevelSpawnerComponent.SpawnActors(F);
 	}
 
 

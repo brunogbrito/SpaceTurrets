@@ -70,6 +70,12 @@ class ASTMapDirector : AActor
 	UPROPERTY()
 	bool bShowCellsNumbers = true;
 
+	UPROPERTY()
+	TMap<FString, AActor> LevelActorsMap;
+
+	UPROPERTY()
+	TArray<AActor> SpawnedActorsArray;
+
 	float MapScaleDivision = 15.0f;
 	int IndexMultiplier = 1;
 
@@ -162,8 +168,25 @@ class ASTMapDirector : AActor
 	}
 
 	UFUNCTION()
-	void StartLevelString()
+	void StartLevelString(FString LevelString)
 	{
+		Print(LevelString, 1.0f);
+
+		//Destroy spawned actors and clear array
+		for(int i = 0; i < SpawnedActorsArray.Num(); i++)
+		{
+			SpawnedActorsArray[i].DestroyActor();
+		}
+		SpawnedActorsArray.Empty();
+
+		//Spawn Actors
+		TArray<FString> StringArray = String::GetCharacterArrayFromString(LevelString);
+		for(int i = 0; i < StringArray.Num(); i++)
+		{
+			LevelActorsMap.FindOrAdd(StringArray[i]);
+			LevelSpawnerComponent.SpawnLevelActors(StringArray[i]);
+			
+		}
 		// LevelSpawnerComponent.SpawnActors(F);
 	}
 

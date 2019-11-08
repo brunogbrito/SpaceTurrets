@@ -24,7 +24,7 @@ class USTLevelCreator : UUserWidget
 		FString MyString = String.ToLower();
 		if(MapDirector != nullptr)
 		{
-			MapDirector.LevelSpawnerComponent.SpawnActors(MyString);
+			MapDirector.StartLevelString(MyString);
 		}
 		return MyString;
 	}

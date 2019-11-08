@@ -115,16 +115,18 @@ class ASTMapDirector : AActor
 		}
 		SlotsLocation.Empty();
 
-		for(int i = 0; i < FMath::Square(GetNumberOfRows()); i++)
+		for(int i = 0; i <= FMath::Square(GetNumberOfRows()); i++)
 		{
-			if(i <= GetNumberOfRows()*IndexMultiplier)
+			if(i == 0)
+			{}
+			else if(i <= GetNumberOfRows()*IndexMultiplier)
 			{
-				AddCustomSceneComponent(GetSceneComponentRelativeLocation(i, IndexMultiplier), IndexMultiplier);
+				AddCustomSceneComponent(GetSceneComponentRelativeLocation(i, IndexMultiplier), i);
 			}
 			else
 			{
 				IndexMultiplier++;
-				AddCustomSceneComponent(GetSceneComponentRelativeLocation(i, IndexMultiplier), IndexMultiplier);
+				AddCustomSceneComponent(GetSceneComponentRelativeLocation(i, IndexMultiplier), i);
 			}
 		}
 	}

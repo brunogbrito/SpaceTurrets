@@ -1,4 +1,6 @@
 import Components.ST_LevelSpawnerComponent;
+import Core.ST_GameState;
+import Actors.ST_EmptyActor;
 
 struct FLevelAssets
 {
@@ -6,6 +8,14 @@ struct FLevelAssets
 	TSubclassOf<AActor> LevelAssetActor;
 };
 
+struct FGameStages
+{
+	UPROPERTY()
+	float MapSize;
+
+	UPROPERTY()
+	FString LevelString;
+};
 
 class ASTMapDirector : AActor
 {
@@ -60,6 +70,15 @@ class ASTMapDirector : AActor
 	USTLevelSpawnerComponent LevelSpawnerComponent;
 
 	UPROPERTY()
+	TSubclassOf<AActor> StartGameActor;
+
+	UPROPERTY()
+	TArray<FGameStages> GameStages;
+
+	UPROPERTY()
+	TSubclassOf<AActor> EmptyActor;
+
+	UPROPERTY()
 	bool bDevMode = false;
 
 	UPROPERTY()
@@ -69,19 +88,21 @@ class ASTMapDirector : AActor
 	float MapSize = 1000.0f;
 
 	UPROPERTY()
-	float CellDistance = 200.0f;
-
-	UPROPERTY()
-	TArray<USceneComponent> SlotsLocation;
-
-	UPROPERTY()
 	bool bShowCellsNumbers = true;
 
+	/*** Local Variables ***/
 	UPROPERTY()
 	TMap<FString, FLevelAssets> LevelAssetsMap;
 
+	UPROPERTY()
+	TArray<USceneComponent> SlotsLocation;
 	float MapScaleDivision = 15.0f;
+	float CellDistance = 200.0f;
 	int IndexMultiplier = 1;
+	int DrawDebuggerIndex;
+
+	UPROPERTY()
+	ASTGameState GS;
 
 
 	/*** FUNCTIONS ***/
@@ -99,12 +120,40 @@ class ASTMapDirector : AActor
 		if(!bDevMode)
 		{
 			bShowCellsNumbers = false;
+			SpawnStartGameActor();
+
 		}
 		if(bLevelCreator)
 		{
 			InitializeLevelCreatorWidget();
+
 		}
 		InitializeLevelAssets();
+
+		GS = Cast<ASTGameState>(Gameplay::GetGameState());
+		GS.OnBeginStageSignature.AddUFunction(this, n"InitializeStage");		
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void Tick(float DeltaSeconds)
+	{
+		if(bDevMode)
+		{
+			DrawGridLocationReference();
+		}
+	}
+
+	UFUNCTION()
+	void SpawnStartGameActor()
+	{
+		if(StartGameActor.IsValid())
+		{
+			AActor MyStartActor = SpawnActor(StartGameActor, FVector(0.0f, 0.0f, 100.0f), FRotator(270.0f, 0.0f, -180.0f));
+		}
+		else
+		{
+			Print("StartGameActor class is null, assign on MapDirector class", 1.0f);
+		}
 	}
 
 	//FIX for TMaps being reset after Hot reload
@@ -114,18 +163,11 @@ class ASTMapDirector : AActor
 		return;
 	}
 
+	//This function is being triggered in Blueprints due the previus fix
 	UFUNCTION()
 	void LoadLevelAssetsMap(TMap<FString, FLevelAssets> TMap)
 	{
 		LevelAssetsMap = TMap;
-		P();
-	}
-
-	UFUNCTION(BlueprintEvent)
-	void InitializeLevelCreatorWidget()
-	{
-		//This widget is being initialized in the blueprint class
-		return;
 	}
 
 	UFUNCTION()
@@ -144,6 +186,7 @@ class ASTMapDirector : AActor
 		LeftCollision.RelativeScale3D = FVector(1.0f, NewMapSize/MapScaleDivision, 3.0f);
 	}
 
+	//This function is triggered via Blueprint class
 	UFUNCTION()
 	void InitializeGrid()
 	{
@@ -186,6 +229,26 @@ class ASTMapDirector : AActor
 		}
 	}
 
+	//Broadcasted from GS
+	UFUNCTION()
+	void InitializeStage(int NextStage)
+	{
+		SetNextLevel(GameStages[NextStage].MapSize, NextStage);
+	}
+
+	//Trigger Blueprint timeline animation
+	UFUNCTION(BlueprintEvent)
+	void SetNextLevel(float NewMapSize, int Stage)
+	{
+		return;
+	}
+
+	UFUNCTION()
+	void SpawnLevelActors(int Stage)
+	{
+		StartLevelString(GameStages[Stage].LevelString);
+	}
+
 	UFUNCTION()
 	void StartLevelString(FString LevelString)
 	{
@@ -198,11 +261,26 @@ class ASTMapDirector : AActor
 		TArray<FString> StringArray = String::GetCharacterArrayFromString(LevelString);
 		for(int i = 0; i < StringArray.Num(); i++)
 		{
-			LevelSpawnerComponent.SpawnLevelActors(LevelAssetsMap.FindOrAdd(StringArray[i]).LevelAssetActor, SlotsLocation[i].GetWorldLocation());
+			if(LevelAssetsMap.Contains(StringArray[i]))
+			{
+				LevelSpawnerComponent.SpawnLevelActors(LevelAssetsMap.FindOrAdd(StringArray[i]).LevelAssetActor, SlotsLocation[i].GetWorldLocation());
+			}
+			else
+			{
+				LevelSpawnerComponent.SpawnLevelActors(EmptyActor, SlotsLocation[i].GetWorldLocation());
+			}
+			DrawDebuggerIndex = i;
 		}
 	}
 
 	/*** Math and Debug Functions ***/
+
+	UFUNCTION(BlueprintEvent)
+	void InitializeLevelCreatorWidget()
+	{
+		//This widget is being initialized in the blueprint class
+		return;
+	}
 
 	UFUNCTION()
 	int GetNumberOfRows()
@@ -221,6 +299,12 @@ class ASTMapDirector : AActor
 	void AddTextRender(FVector RelativeLocation, int CellIndex)
 	{
 		return;
+	}
+
+	UFUNCTION()
+	void DrawGridLocationReference()
+	{
+		System::DrawDebugBox(SlotsLocation[DrawDebuggerIndex].GetWorldLocation(), FVector(100.0f), FLinearColor::Green, FRotator::ZeroRotator, 0.1f, 50.0f);
 	}
 
 }

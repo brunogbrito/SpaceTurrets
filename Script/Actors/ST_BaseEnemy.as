@@ -94,6 +94,9 @@ class ASTBaseEnemy : APawn
 	UPROPERTY()
 	float TimeBetweenShots = 0.75f;
 
+	UPROPERTY()
+	float ScoringPoints = 25.0f;
+
 	ASTMapDirector MapDirector;
 	bool bIsMoving;
 	bool bHomeMissile;
@@ -113,6 +116,9 @@ class ASTBaseEnemy : APawn
 		TArray<ASTMapDirector> MapDirectorArray;
 		ASTMapDirector::GetAll(MapDirectorArray);
 		MapDirector = MapDirectorArray[0];
+
+		HealthComponent.OnDeath.AddUFunction(this, n"ScorePoint");
+		GS.OnEndGameSignature.AddUFunction(this, n"RemoveActor");
 
 		InitializeEnemy();
 	}
@@ -135,7 +141,7 @@ class ASTBaseEnemy : APawn
 	{
 		IgnoredActors.Add(this);
 		
-		if(!MapDirector.bDevMode)
+		if(MapDirector.bDevMode)
 		{
 			return;
 		}
@@ -269,5 +275,17 @@ class ASTBaseEnemy : APawn
 				Print("Primary Projectile Class is NULL", 5.0f);
 			}
 		}
+	}
+
+	UFUNCTION()
+	void ScorePoint()
+	{
+		GS.AddScore(ScoringPoints);
+	}
+
+	UFUNCTION()
+	void RemoveActor()
+	{
+		DestroyActor();
 	}
 }

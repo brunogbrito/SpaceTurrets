@@ -32,6 +32,5 @@ class ASTStartGame : ASTBaseEnemy
 			GS.StartGame();
 			DestroyActor();
 		}
-		Print(""+ProgressBar, 1.0f);
 	}
 }

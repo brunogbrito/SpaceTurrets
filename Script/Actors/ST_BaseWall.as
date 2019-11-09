@@ -1,4 +1,5 @@
 import Components.ST_HealthComponent;
+import Core.ST_GameState;
 
 enum EBlockType{
 	CUBE,
@@ -54,5 +55,18 @@ class ASTBaseWall : AActor
 			Tags.Add(n"enemy");
 			break;
 		}
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void BeginPlay()
+	{
+		ASTGameState GS = Cast<ASTGameState>(Gameplay::GetGameState());
+		GS.OnEndGameSignature.AddUFunction(this, n"RemoveActor");
+	}
+
+	UFUNCTION()
+	void RemoveActor()
+	{
+		DestroyActor();
 	}
 }

@@ -62,5 +62,6 @@ class USTLevelSpawnerComponent : UActorComponent
 	{
 		//Destroy spawned actors and clear array
 		AActor MySpawnedActor = SpawnActor(LevelActorAsset, RelativeLocation, FRotator::ZeroRotator);
+		SpawnedActorsArray.Add(MySpawnedActor);
 	}
 }

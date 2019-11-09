@@ -1,5 +1,6 @@
 import Character.ST_PlayerProjectile;
 import Components.ST_HealthComponent;
+import Actors.ST_MapDirector;
 import Core.ST_Statics;
 
 class ASTShip : APawn
@@ -75,6 +76,8 @@ class ASTShip : APawn
 	//Projectile Trigger Local Variables
 	float LastProjectileShot;
     float TimeBetweenShots;
+
+	ASTMapDirector MapDirector;
 
 	default Tags.Add(n"ship");
 

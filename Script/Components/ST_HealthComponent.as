@@ -13,6 +13,9 @@ class USTHealthComponent : UActorComponent
 	float MaxHealth = 1.0f;
 
 	UPROPERTY()
+	bool bIsInvencible;
+
+	UPROPERTY()
 	FOnTakeDamage OnTakeDamageSignature;
 
 	UPROPERTY()
@@ -39,7 +42,11 @@ class USTHealthComponent : UActorComponent
 			return;
 		}
 
-		Health = FMath::Clamp(Health - Damage, 0.0f, MaxHealth);
+		if(!bIsInvencible)
+		{
+			Health = FMath::Clamp(Health - Damage, 0.0f, MaxHealth);
+		}
+
 		OnTakeDamageSignature.Broadcast();
 
 		if(Health <= 0.0f)

@@ -3,6 +3,7 @@ import Components.ST_HealthComponent;
 import Core.ST_GameState;
 import Character.ST_Ship;
 import Actors.ST_EnemyProjectileBase;
+import Actors.ST_MapDirector;
 
 enum EEnemyMovementType
 {
@@ -85,12 +86,15 @@ class ASTBaseEnemy : APawn
 	bool bScanForPlayer;
 
 	UPROPERTY()
+	bool bNoRotation;
+
+	UPROPERTY()
 	FTimerHandle TimeHandle_Shooting;
 
 	UPROPERTY()
 	float TimeBetweenShots = 0.75f;
 
-
+	ASTMapDirector MapDirector;
 	bool bIsMoving;
 	bool bHomeMissile;
 	bool bIsAlternateProjectile;
@@ -105,13 +109,21 @@ class ASTBaseEnemy : APawn
 	{
 		GS = Cast<ASTGameState>(Gameplay::GetGameState());
 		PlayerShip = Cast<ASTShip>(Gameplay::GetPlayerPawn(0));
+
+		TArray<ASTMapDirector> MapDirectorArray;
+		ASTMapDirector::GetAll(MapDirectorArray);
+		MapDirector = MapDirectorArray[0];
+
 		InitializeEnemy();
 	}
 
 	UFUNCTION(BlueprintOverride)
 	void Tick(float DeltaSeconds)
 	{
-		AddRotation();
+		if(!bNoRotation)
+		{
+			AddRotation();
+		}
 		if(bIsMoving)
 		{
 			AddMovement();
@@ -123,6 +135,10 @@ class ASTBaseEnemy : APawn
 	{
 		IgnoredActors.Add(this);
 		
+		if(!MapDirector.bDevMode)
+		{
+			return;
+		}
 		switch(EnumEnemyMovement)
 		{
 			case EEnemyMovementType::STATIC:

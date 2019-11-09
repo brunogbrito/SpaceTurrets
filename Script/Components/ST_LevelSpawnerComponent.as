@@ -30,30 +30,37 @@ class USTLevelSpawnerComponent : UActorComponent
 	UPROPERTY()
 	TArray<AActor> SpawnedActorsArray;
 
+	UPROPERTY()
+	TMap<FString, AActor> LevelAssetMap;
+
+
+	// UFUNCTION()
+	// void InitializeLevelCreation(FString String)
+	// {
+
+
+	// 	//Spawn Actors
+	// 	TArray<FString> StringArray = String::GetCharacterArrayFromString(String);
+	// 	for(int i = 0; i < StringArray.Num(); i++)
+	// 	{
+	// 		SpawnLevelActors(StringArray[i]);
+	// 	}
+	// }
 
 	UFUNCTION()
-	void InitializeLevelCreation(FString String)
+	void ClearLevel()
 	{
-		Print(String, 1.0f);
-
-		//Destroy spawned actors and clear array
 		for(int i = 0; i < SpawnedActorsArray.Num(); i++)
 		{
 			SpawnedActorsArray[i].DestroyActor();
 		}
 		SpawnedActorsArray.Empty();
-
-		//Spawn Actors
-		TArray<FString> StringArray = String::GetCharacterArrayFromString(String);
-		for(int i = 0; i < StringArray.Num(); i++)
-		{
-			SpawnLevelActors(StringArray[i]);
-		}
 	}
 
 	UFUNCTION()
-	void SpawnLevelActors(FString ActorString)
+	void SpawnLevelActors(TSubclassOf<AActor> LevelActorAsset, FVector RelativeLocation)
 	{
-
+		//Destroy spawned actors and clear array
+		AActor MySpawnedActor = SpawnActor(LevelActorAsset, RelativeLocation, FRotator::ZeroRotator);
 	}
 }

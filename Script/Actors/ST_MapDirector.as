@@ -1,5 +1,12 @@
 import Components.ST_LevelSpawnerComponent;
 
+struct FLevelAssets
+{
+	UPROPERTY()
+	TSubclassOf<AActor> LevelAssetActor;
+};
+
+
 class ASTMapDirector : AActor
 {
 	UPROPERTY(DefaultComponent, RootComponent)
@@ -71,10 +78,7 @@ class ASTMapDirector : AActor
 	bool bShowCellsNumbers = true;
 
 	UPROPERTY()
-	TMap<FString, AActor> LevelActorsMap;
-
-	UPROPERTY()
-	TArray<AActor> SpawnedActorsArray;
+	TMap<FString, FLevelAssets> LevelAssetsMap;
 
 	float MapScaleDivision = 15.0f;
 	int IndexMultiplier = 1;
@@ -100,6 +104,21 @@ class ASTMapDirector : AActor
 		{
 			InitializeLevelCreatorWidget();
 		}
+		InitializeLevelAssets();
+	}
+
+	//FIX for TMaps being reset after Hot reload
+	UFUNCTION(BlueprintEvent)
+	void InitializeLevelAssets()
+	{
+		return;
+	}
+
+	UFUNCTION()
+	void LoadLevelAssetsMap(TMap<FString, FLevelAssets> TMap)
+	{
+		LevelAssetsMap = TMap;
+		P();
 	}
 
 	UFUNCTION(BlueprintEvent)
@@ -172,24 +191,16 @@ class ASTMapDirector : AActor
 	{
 		Print(LevelString, 1.0f);
 
-		//Destroy spawned actors and clear array
-		for(int i = 0; i < SpawnedActorsArray.Num(); i++)
-		{
-			SpawnedActorsArray[i].DestroyActor();
-		}
-		SpawnedActorsArray.Empty();
+		////Destroy spawned actors and clear array
+		LevelSpawnerComponent.ClearLevel();
 
 		//Spawn Actors
 		TArray<FString> StringArray = String::GetCharacterArrayFromString(LevelString);
 		for(int i = 0; i < StringArray.Num(); i++)
 		{
-			LevelActorsMap.FindOrAdd(StringArray[i]);
-			LevelSpawnerComponent.SpawnLevelActors(StringArray[i]);
-			
+			LevelSpawnerComponent.SpawnLevelActors(LevelAssetsMap.FindOrAdd(StringArray[i]).LevelAssetActor, SlotsLocation[i].GetWorldLocation());
 		}
-		// LevelSpawnerComponent.SpawnActors(F);
 	}
-
 
 	/*** Math and Debug Functions ***/
 

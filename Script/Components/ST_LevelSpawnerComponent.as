@@ -52,7 +52,10 @@ class USTLevelSpawnerComponent : UActorComponent
 	{
 		for(int i = 0; i < SpawnedActorsArray.Num(); i++)
 		{
-			SpawnedActorsArray[i].DestroyActor();
+			if(SpawnedActorsArray[i] != nullptr)
+			{
+				SpawnedActorsArray[i].DestroyActor();
+			}
 		}
 		SpawnedActorsArray.Empty();
 	}

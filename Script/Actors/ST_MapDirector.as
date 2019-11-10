@@ -121,18 +121,15 @@ class ASTMapDirector : AActor
 		{
 			bShowCellsNumbers = false;
 			SpawnStartGameActor();
-
 		}
 		if(bLevelCreator)
 		{
 			InitializeLevelCreatorWidget();
-
 		}
-		InitializeLevelAssets();
 
-		GS = Cast<ASTGameState>(Gameplay::GetGameState());
-		GS.OnBeginStageSignature.AddUFunction(this, n"InitializeStage");
-		GS.OnEndGameSignature.AddUFunction(this,n"ResetMapSize");
+		InitializeLevelAssets();
+		BindGameStateEvents();
+		InitializeWorldHUD();
 	}
 
 	UFUNCTION(BlueprintOverride)
@@ -142,6 +139,16 @@ class ASTMapDirector : AActor
 		{
 			DrawGridLocationReference();
 		}
+	}
+
+	UFUNCTION()
+	void BindGameStateEvents()
+	{
+		GS = Cast<ASTGameState>(Gameplay::GetGameState());
+		GS.OnBeginStageSignature.AddUFunction(this, n"InitializeStage");
+		GS.OnEndGameSignature.AddUFunction(this,n"ResetMapSize");
+		GS.OnUpdateScoreSignature.AddUFunction(this, n"UpdateHUDScore");
+		GS.OnStartGameSignature.AddUFunction(this, n"StartHUDAnimation");
 	}
 
 	UFUNCTION()
@@ -218,6 +225,13 @@ class ASTMapDirector : AActor
 		}
 	}
 
+	UFUNCTION(BlueprintEvent)
+	void InitializeWorldHUD()
+	{
+		//Add World HUDWidget in blueprint class
+		return;
+	}
+
 	UFUNCTION()
 	void AddCustomSceneComponent(FVector RelativeLocation, int CellIndex)
 	{
@@ -235,6 +249,7 @@ class ASTMapDirector : AActor
 	void InitializeStage(int NextStage)
 	{
 		SetNextLevel(GameStages[NextStage].MapSize, NextStage);
+		UpdateHUDStage(NextStage);
 	}
 
 	//Trigger Blueprint timeline animation
@@ -286,6 +301,28 @@ class ASTMapDirector : AActor
 	{
 		SpawnStartGameActor();
 	}
+
+
+	/*** World HUD Functions ***/
+
+	UFUNCTION(BlueprintEvent)
+	void UpdateHUDScore(int NewScore)
+	{
+		return;
+	}
+
+	UFUNCTION(BlueprintEvent)
+	void UpdateHUDStage(int NewStage)
+	{
+		return;
+	}
+
+	UFUNCTION(BlueprintEvent)
+	void StartHUDAnimation()
+	{
+		return;
+	}
+
 
 	/*** Math and Debug Functions ***/
 

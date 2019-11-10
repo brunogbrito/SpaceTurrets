@@ -1,17 +1,21 @@
 event void FCustomEndGame();
 event void FBeginStage(int NextStage);
 event void FStartGame();
+event void FUpdateScore(int CurrentScore);
 
 class ASTGameState : AGameStateBase
 {	
 	UPROPERTY()
-	float Score;
+	int Score;
 
 	UPROPERTY()
 	int Stage;
 
 	UPROPERTY()
 	int ActiveEnemies;
+
+	UPROPERTY()
+	bool bGameStarted;
 
 	UPROPERTY()
 	FCustomEndGame OnEndGameSignature;
@@ -21,6 +25,10 @@ class ASTGameState : AGameStateBase
 
 	UPROPERTY()
 	FStartGame OnStartGameSignature;
+
+	UPROPERTY()
+	FUpdateScore OnUpdateScoreSignature;
+
 
 	UFUNCTION()
 	void StartGame()
@@ -35,12 +43,14 @@ class ASTGameState : AGameStateBase
 	{
 		Score = 0.0f;
 		Stage = 0;
+		bGameStarted = true;
 	}
 
 	UFUNCTION()
-	void AddScore(float ScoreValue)
+	void AddScore(int ScoreValue)
 	{
 		Score = Score + ScoreValue;
+		OnUpdateScoreSignature.Broadcast(Score);
 	}
 
 	UFUNCTION()
@@ -53,7 +63,7 @@ class ASTGameState : AGameStateBase
 	void EnemyDestroyed()
 	{
 		ActiveEnemies = FMath::Clamp(ActiveEnemies - 1, 0 , 100);
-		if(ActiveEnemies == 0)
+		if(ActiveEnemies == 0 && bGameStarted)
 		{
 			NextStage(Stage);
 		}
@@ -71,6 +81,7 @@ class ASTGameState : AGameStateBase
 	UFUNCTION()
 	void FinishGame()
 	{
+		bGameStarted = false;
 		OnEndGameSignature.Broadcast();
 	}
 }

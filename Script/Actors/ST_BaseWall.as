@@ -10,13 +10,16 @@ enum EBlockType{
 class ASTBaseWall : AActor
 {
 	UPROPERTY(DefaultComponent, RootComponent)
+	USceneComponent Root;
+	
+	UPROPERTY(DefaultComponent)
 	UBoxComponent BoxCollision;
 	default BoxCollision.CollisionObjectType = ECollisionChannel::ECC_WorldStatic;
 	default BoxCollision.SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	default BoxCollision.SetCollisionResponseToChannel(ECollisionChannel::ShipProjectile, ECollisionResponse::ECR_Overlap);
 	default BoxCollision.GenerateOverlapEvents = true;
 
-	UPROPERTY(DefaultComponent)
+	UPROPERTY(DefaultComponent, Attach = BoxCollision)
 	UStaticMeshComponent BlockMesh;
 	default BlockMesh.CollisionEnabled = ECollisionEnabled::NoCollision;
 
@@ -62,6 +65,21 @@ class ASTBaseWall : AActor
 	{
 		ASTGameState GS = Cast<ASTGameState>(Gameplay::GetGameState());
 		GS.OnEndGameSignature.AddUFunction(this, n"RemoveActor");
+		PlayIntroAnimation();
+	}
+
+	UFUNCTION(BlueprintEvent)
+	void PlayIntroAnimation()
+	{
+		//Trigger Blueprint timeline animation 
+		return;
+	}
+
+	UFUNCTION(BlueprintEvent)
+	void PlayVisualEffect()
+	{
+		//Trigger Blueprint timeline animation 
+		return;
 	}
 
 	UFUNCTION()

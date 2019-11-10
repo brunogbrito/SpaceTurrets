@@ -7,6 +7,7 @@ class ASTStartGame : ASTBaseEnemy
 	UPROPERTY()
 	FTimerHandle TimeHandle_ProgressBar;
 
+	UPROPERTY()
 	float ProgressBar;
 
 	//This function is triggered in Blueprints

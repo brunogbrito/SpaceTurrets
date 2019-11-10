@@ -109,6 +109,8 @@ class ASTBaseEnemy : APawn
 	bool bIsAlternateProjectile;
 	TArray<AActor> IgnoredActors;
 
+	default AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
 	default Tags.Add(n"enemy");
 
 	/*** FUNCTION ***/

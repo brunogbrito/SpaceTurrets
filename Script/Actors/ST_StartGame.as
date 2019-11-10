@@ -26,7 +26,7 @@ class ASTStartGame : ASTBaseEnemy
 	UFUNCTION()
 	void OnTakeDamage()
 	{
-		ProgressBar = FMath::Clamp(ProgressBar + 4.0f, 0.0f, 100.0f);	
+		ProgressBar = FMath::Clamp(ProgressBar + 8.0f, 0.0f, 100.0f);	
 		if(ProgressBar >= 100.0f)
 		{
 			GS.StartGame();

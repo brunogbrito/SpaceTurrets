@@ -18,7 +18,7 @@ class ASTShip : APawn
 	UPROPERTY(DefaultComponent, Attach=ShipHullMeshes, Category = "Components")
 	USceneComponent ProjectileSpawnLocation;
 	
-	UPROPERTY(DefaultComponent, Category = "Components")
+	UPROPERTY(DefaultComponent, Attach = ShipHullMeshes, Category = "Components")
 	USpringArmComponent SpringArm;
 	default SpringArm.TargetArmLength = 1800.0f;
 	default SpringArm.bDoCollisionTest = false;
@@ -73,6 +73,7 @@ class ASTShip : APawn
 	float RotateYValue;
 	float MoveForwardValue;
 	float MoveRightValue;
+	FVector InitialLocation;
 
 	//Projectile Trigger Local Variables
 	float LastProjectileShot;
@@ -92,8 +93,10 @@ class ASTShip : APawn
 		BindInput();
 		InitializeDefaultValues();
 
-		HealthComponent.OnDeath.AddUFunction(this, n"ResetShip");
+		HealthComponent.OnDeath.AddUFunction(this, n"ResetGame");
 		GS.OnStartGameSignature.AddUFunction(this, n"ResetShip");
+
+		InitialLocation = GetActorLocation();
 	}
 
 	UFUNCTION()
@@ -219,7 +222,14 @@ class ASTShip : APawn
 	UFUNCTION(BlueprintEvent)
 	void ResetShip()
 	{
-		GS.FinishGame();
 		HealthComponent.InitializeComponent();
+		SetActorLocation(InitialLocation);
+	}
+
+	UFUNCTION()
+	void ResetGame()
+	{
+		GS.FinishGame();
+		ResetShip();
 	}
 }

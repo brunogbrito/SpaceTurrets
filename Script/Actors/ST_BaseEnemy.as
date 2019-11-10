@@ -37,6 +37,12 @@ class ASTBaseEnemy : APawn
 	UPROPERTY(DefaultComponent, Category = "StaticMesh")
 	UStaticMeshComponent EnemyMesh;
 
+	UPROPERTY()
+	UMaterialInstanceDynamic EnemyDynamicMaterialInstance;
+
+	UPROPERTY()
+	FLinearColor InitialColor;
+
 	UPROPERTY(DefaultComponent, Category = "Components")
 	UFloatingPawnMovement FloatingMovementComponent;
 
@@ -118,6 +124,11 @@ class ASTBaseEnemy : APawn
 		MapDirector = MapDirectorArray[0];
 
 		HealthComponent.OnDeath.AddUFunction(this, n"ScorePoint");
+		HealthComponent.OnTakeDamageSignature.AddUFunction(this, n"PlayVisualFeedback");
+		EnemyDynamicMaterialInstance =  EnemyMesh.CreateDynamicMaterialInstance(0, EnemyMesh.GetMaterial(0));
+		InitialColor = EnemyDynamicMaterialInstance.GetVectorParameterValue(n"Color");
+		EnemyMesh.SetMaterial(0, EnemyDynamicMaterialInstance);
+
 		GS.OnEndGameSignature.AddUFunction(this, n"RemoveActor");
 
 		InitializeEnemy();
@@ -278,6 +289,13 @@ class ASTBaseEnemy : APawn
 		}
 	}
 
+	UFUNCTION(BlueprintEvent)
+	void PlayVisualFeedback()
+	{
+		//Trigger Blueprint timeline animation 
+		return;
+	}
+
 	UFUNCTION()
 	void ScorePoint()
 	{
@@ -293,7 +311,7 @@ class ASTBaseEnemy : APawn
 	UFUNCTION(BlueprintOverride)
 	void Destroyed()
 	{
-		if(!MapDirector.bDevMode)
+		if(MapDirector != nullptr && !MapDirector.bDevMode)
 		{
 			GS.EnemyDestroyed();
 		}

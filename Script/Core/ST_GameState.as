@@ -1,5 +1,6 @@
-event void FEndGame();
+event void FCustomEndGame();
 event void FBeginStage(int NextStage);
+event void FStartGame();
 
 class ASTGameState : AGameStateBase
 {	
@@ -10,15 +11,22 @@ class ASTGameState : AGameStateBase
 	int Stage;
 
 	UPROPERTY()
-	FEndGame OnEndGameSignature;
+	int ActiveEnemies;
+
+	UPROPERTY()
+	FCustomEndGame OnEndGameSignature;
 
 	UPROPERTY()
 	FBeginStage OnBeginStageSignature;
+
+	UPROPERTY()
+	FStartGame OnStartGameSignature;
 
 	UFUNCTION()
 	void StartGame()
 	{
 		InitializeGame();
+		OnStartGameSignature.Broadcast();
 		NextStage(Stage);
 	}
 
@@ -36,8 +44,26 @@ class ASTGameState : AGameStateBase
 	}
 
 	UFUNCTION()
+	void AddActiveEnemy()
+	{
+		ActiveEnemies++;
+	}
+
+	UFUNCTION()
+	void EnemyDestroyed()
+	{
+		ActiveEnemies = FMath::Clamp(ActiveEnemies - 1, 0 , 100);
+		if(ActiveEnemies == 0)
+		{
+			NextStage(Stage);
+		}
+		Print("ActiveEnemies" + ActiveEnemies, 1.0f);
+	}
+
+	UFUNCTION()
 	void NextStage(int NextStage)
 	{
+		//Broadcast to MapDirector
 		OnBeginStageSignature.Broadcast(Stage);
 		Stage++;
 	}

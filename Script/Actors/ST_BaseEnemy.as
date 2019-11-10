@@ -161,6 +161,7 @@ class ASTBaseEnemy : APawn
 		}
 		bIsAlternateProjectile = false;
 		InitializeShooterTimer();
+		AddActiveEnemy();
 	}
 
 	UFUNCTION()
@@ -287,5 +288,20 @@ class ASTBaseEnemy : APawn
 	void RemoveActor()
 	{
 		DestroyActor();
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void Destroyed()
+	{
+		if(!MapDirector.bDevMode)
+		{
+			GS.EnemyDestroyed();
+		}
+	}
+
+	UFUNCTION(BlueprintEvent)
+	void AddActiveEnemy()
+	{
+		GS.AddActiveEnemy();
 	}
 }

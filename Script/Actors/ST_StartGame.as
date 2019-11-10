@@ -33,4 +33,16 @@ class ASTStartGame : ASTBaseEnemy
 			DestroyActor();
 		}
 	}
+
+	UFUNCTION(BlueprintOverride)
+	void Destroyed()
+	{
+		return;
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void AddActiveEnemy()
+	{
+		return;
+	}
 }

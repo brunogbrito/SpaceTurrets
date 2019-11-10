@@ -30,6 +30,12 @@ class USTHealthComponent : UActorComponent
 	UFUNCTION(BlueprintOverride)
 	void BeginPlay()
 	{
+		InitializeComponent();
+	}
+
+	UFUNCTION()
+	void InitializeComponent()
+	{
 		Health = MaxHealth;
 	}
 
@@ -52,7 +58,10 @@ class USTHealthComponent : UActorComponent
 		if(Health <= 0.0f)
 		{
 			OnDeath.Broadcast();
-			GetOwner().DestroyActor();
+			if(!GetOwner().ActorHasTag(n"ship"))
+			{
+				GetOwner().DestroyActor();
+			}
 		}
 	}
 }

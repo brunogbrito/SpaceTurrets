@@ -1,6 +1,7 @@
 import Character.ST_PlayerProjectile;
 import Components.ST_HealthComponent;
 import Actors.ST_MapDirector;
+import Core.ST_GameState;
 import Core.ST_Statics;
 
 class ASTShip : APawn
@@ -78,6 +79,7 @@ class ASTShip : APawn
     float TimeBetweenShots;
 
 	ASTMapDirector MapDirector;
+	ASTGameState GS;
 
 	default Tags.Add(n"ship");
 
@@ -85,8 +87,13 @@ class ASTShip : APawn
 	UFUNCTION(BlueprintOverride)
 	void BeginPlay()
 	{
+		GS = Cast<ASTGameState>(Gameplay::GetGameState());
+		
 		BindInput();
 		InitializeDefaultValues();
+
+		HealthComponent.OnDeath.AddUFunction(this, n"ResetShip");
+		GS.OnStartGameSignature.AddUFunction(this, n"ResetShip");
 	}
 
 	UFUNCTION()
@@ -207,5 +214,12 @@ class ASTShip : APawn
 		}		
 		FRotator TargetRotation = FRotator::MakeFromX(AxisVector) + FRotator(0.0f, 90.0f, 0.0f);
 		ShipHullMeshes.SetWorldRotation(FMath::RInterpTo(ShipHullMeshes.WorldRotation, TargetRotation, Gameplay::GetWorldDeltaSeconds(), ShipRotationInterpSpeed));
+	}
+
+	UFUNCTION(BlueprintEvent)
+	void ResetShip()
+	{
+		GS.FinishGame();
+		HealthComponent.InitializeComponent();
 	}
 }

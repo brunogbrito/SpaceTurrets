@@ -131,7 +131,8 @@ class ASTMapDirector : AActor
 		InitializeLevelAssets();
 
 		GS = Cast<ASTGameState>(Gameplay::GetGameState());
-		GS.OnBeginStageSignature.AddUFunction(this, n"InitializeStage");		
+		GS.OnBeginStageSignature.AddUFunction(this, n"InitializeStage");
+		GS.OnEndGameSignature.AddUFunction(this,n"ResetMapSize");
 	}
 
 	UFUNCTION(BlueprintOverride)
@@ -271,6 +272,19 @@ class ASTMapDirector : AActor
 			}
 			DrawDebuggerIndex = i;
 		}
+	}
+
+	UFUNCTION(BlueprintEvent)
+	void ResetMapSize()
+	{
+		//Play Blueprint animation
+		return;
+	}
+
+	UFUNCTION()
+	void RestartGame()
+	{
+		SpawnStartGameActor();
 	}
 
 	/*** Math and Debug Functions ***/

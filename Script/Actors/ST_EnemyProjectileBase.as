@@ -79,6 +79,10 @@ class ASTEnemyProjectileBase : ASTPlayerProjectile
 			OtherActor.AnyDamage(ProjectileDamage, DamageType, GetInstigatorController(), this);
 			if(bCanCollideWithProjectiles != true && !OtherActor.ActorHasTag(n"ship"))
 			{
+				if(OtherActor.ActorHasTag(n"Wall"))
+				{
+					DestroyActor();	
+				}
 				return;
 			}
 			else

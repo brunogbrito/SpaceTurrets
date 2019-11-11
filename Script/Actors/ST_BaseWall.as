@@ -40,6 +40,9 @@ class ASTBaseWall : AActor
 	UPROPERTY()
 	FVector BoxExtension = FVector(100.0f, 100.0f, 100.0f);;
 
+	default Tags.Add(n"Wall");
+	
+
 	UFUNCTION(BlueprintOverride)
 	void ConstructionScript()
 	{

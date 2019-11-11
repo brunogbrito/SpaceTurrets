@@ -82,6 +82,9 @@ class ASTMapDirector : AActor
 	bool bDevMode = false;
 
 	UPROPERTY()
+	int StartAtStage = 0;
+
+	UPROPERTY()
 	bool bLevelCreator = false;
 
 	UPROPERTY()
@@ -248,8 +251,8 @@ class ASTMapDirector : AActor
 	UFUNCTION()
 	void InitializeStage(int NextStage)
 	{
-		SetNextLevel(GameStages[NextStage].MapSize, NextStage);
-		UpdateHUDStage(NextStage);
+		SetNextLevel(GameStages[NextStage+StartAtStage].MapSize, NextStage+StartAtStage);
+		UpdateHUDStage(NextStage+StartAtStage);
 	}
 
 	//Trigger Blueprint timeline animation

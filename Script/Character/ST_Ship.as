@@ -222,7 +222,19 @@ class ASTShip : APawn
 	UFUNCTION(BlueprintEvent)
 	void ResetShip()
 	{
+		ResetShipHealthComponent();
+		ResetShipLocation();
+	}
+
+	UFUNCTION()
+	void ResetShipHealthComponent()
+	{
 		HealthComponent.InitializeComponent();
+	}
+
+	UFUNCTION()
+	void ResetShipLocation()
+	{
 		SetActorLocation(InitialLocation);
 	}
 

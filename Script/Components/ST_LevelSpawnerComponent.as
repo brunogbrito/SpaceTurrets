@@ -34,19 +34,6 @@ class USTLevelSpawnerComponent : UActorComponent
 	TMap<FString, AActor> LevelAssetMap;
 
 
-	// UFUNCTION()
-	// void InitializeLevelCreation(FString String)
-	// {
-
-
-	// 	//Spawn Actors
-	// 	TArray<FString> StringArray = String::GetCharacterArrayFromString(String);
-	// 	for(int i = 0; i < StringArray.Num(); i++)
-	// 	{
-	// 		SpawnLevelActors(StringArray[i]);
-	// 	}
-	// }
-
 	UFUNCTION()
 	void ClearLevel()
 	{

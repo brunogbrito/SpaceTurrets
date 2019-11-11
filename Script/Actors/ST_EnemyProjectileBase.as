@@ -34,6 +34,9 @@ class ASTEnemyProjectileBase : ASTPlayerProjectile
 
 	bool bFollowPlayer;
 
+	default Tags.Add(n"EnemyProjectile");
+
+
 	UFUNCTION(BlueprintOverride)
 	void ConstructionScript()
 	{
@@ -89,6 +92,10 @@ class ASTEnemyProjectileBase : ASTPlayerProjectile
 			{
 				DestroyActor();			
 			}
+		}
+		if(OtherActor.ActorHasTag(n"enemy") && OtherActor.ActorHasTag(n"Wall"))
+		{
+			DestroyActor();
 		}
 	}
 }

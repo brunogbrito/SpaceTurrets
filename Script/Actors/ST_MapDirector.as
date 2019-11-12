@@ -66,52 +66,52 @@ class ASTMapDirector : AActor
 	default LeftMesh.CollisionEnabled = ECollisionEnabled::NoCollision;
 	default LeftMesh.RelativeScale3D = FVector(0.25f);
 
-	UPROPERTY(DefaultComponent)
+	UPROPERTY(DefaultComponent, Category = "Component")
 	USTLevelSpawnerComponent LevelSpawnerComponent;
 
-	UPROPERTY()
+	UPROPERTY(Category = "GameplaySettings")
 	TSubclassOf<AActor> StartGameActor;
 
-	UPROPERTY()
+	UPROPERTY(Category = "GameplaySettings")
 	TSubclassOf<AActor> EndGameActor;
 
-	UPROPERTY()
-	TArray<FGameStages> GameStages;
-
-	UPROPERTY()
+	UPROPERTY(Category = "GameplaySettings")
 	TSubclassOf<AActor> EmptyActor;
 
-	UPROPERTY()
+	UPROPERTY(Category = "DevelopmentSettings")
 	bool bDevMode = false;
 
-	UPROPERTY()
+	UPROPERTY(Category = "DevelopmentSettings")
 	int StartAtStage = 0;
 
-	UPROPERTY()
+	UPROPERTY(Category = "DevelopmentSettings")
 	bool bLevelCreator = false;
 
-	UPROPERTY()
+	UPROPERTY(Category = "DevelopmentSettings")
 	float MapSize = 1000.0f;
 
-	UPROPERTY()
+	UPROPERTY(Category = "DevelopmentSettings")
 	bool bShowCellsNumbers = true;
 
-	/*** Local Variables ***/
-	UPROPERTY()
+	UPROPERTY(Category = "GameplaySettings")
 	TMap<FString, FLevelAssets> LevelAssetsMap;
 
-	UPROPERTY()
-	TArray<USceneComponent> SlotsLocation;
+	UPROPERTY(Category = "GameplaySettings")
+	TArray<FGameStages> GameStages;
+
+
+	/*** Local Variables ***/
 
 	float MapScaleDivision = 15.0f;
 	float CellDistance = 200.0f;
 	int IndexMultiplier = 1;
 	int DrawDebuggerIndex;
-	AActor MyEndGameActor;
-	FTimerHandle TimeHandle_ResetGame;
 
-	UPROPERTY()
+	AActor MyEndGameActor;
 	ASTGameState GS;
+
+	TArray<USceneComponent> SlotsLocation;
+	FTimerHandle TimeHandle_ResetGame;
 
 
 	/*** FUNCTIONS ***/
@@ -177,6 +177,7 @@ class ASTMapDirector : AActor
 	UFUNCTION(BlueprintEvent)
 	void InitializeLevelAssets()
 	{
+		//Trigger Timeline and Spawning logic in blueprints
 		return;
 	}
 
@@ -381,5 +382,4 @@ class ASTMapDirector : AActor
 	{
 		System::DrawDebugBox(SlotsLocation[DrawDebuggerIndex].GetWorldLocation(), FVector(100.0f), FLinearColor::Green, FRotator::ZeroRotator, 0.1f, 50.0f);
 	}
-
 }

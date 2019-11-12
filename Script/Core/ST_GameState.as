@@ -34,7 +34,7 @@ class ASTGameState : AGameStateBase
 	void StartGame()
 	{
 		InitializeGame();
-		OnStartGameSignature.Broadcast();	
+		OnStartGameSignature.Broadcast();	//Broadcast to MapDirector
 		NextStage(Stage);
 	}
 
@@ -80,6 +80,6 @@ class ASTGameState : AGameStateBase
 	void FinishGame()
 	{
 		bGameStarted = false;
-		OnEndGameSignature.Broadcast();		//Broadcast to BaseEnemy, BaseWall
+		OnEndGameSignature.Broadcast();		//Broadcast to BaseEnemy, BaseWall, MapDirector
 	}
 }

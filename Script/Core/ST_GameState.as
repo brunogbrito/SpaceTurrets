@@ -34,7 +34,7 @@ class ASTGameState : AGameStateBase
 	void StartGame()
 	{
 		InitializeGame();
-		OnStartGameSignature.Broadcast();
+		OnStartGameSignature.Broadcast();	
 		NextStage(Stage);
 	}
 
@@ -50,7 +50,7 @@ class ASTGameState : AGameStateBase
 	void AddScore(int ScoreValue)
 	{
 		Score = Score + ScoreValue;
-		OnUpdateScoreSignature.Broadcast(Score);
+		OnUpdateScoreSignature.Broadcast(Score); 	//Broadcast to MapDirector
 	}
 
 	UFUNCTION()
@@ -72,8 +72,7 @@ class ASTGameState : AGameStateBase
 	UFUNCTION()
 	void NextStage(int NextStage)
 	{
-		//Broadcast to MapDirector
-		OnBeginStageSignature.Broadcast(Stage);
+		OnBeginStageSignature.Broadcast(Stage);		//Broadcast to MapDirector
 		Stage++;
 	}
 
@@ -81,6 +80,6 @@ class ASTGameState : AGameStateBase
 	void FinishGame()
 	{
 		bGameStarted = false;
-		OnEndGameSignature.Broadcast();
+		OnEndGameSignature.Broadcast();		//Broadcast to BaseEnemy
 	}
 }

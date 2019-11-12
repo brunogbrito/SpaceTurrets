@@ -28,19 +28,19 @@ class ASTBaseEnemy : APawn
 	default CapsuleCollision.SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	default CapsuleCollision.SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
 
-	UPROPERTY(DefaultComponent)
+	UPROPERTY(DefaultComponent, Category ="Projectie")
 	USceneComponent ProjectileSpawnLocation;
 
-	UPROPERTY(DefaultComponent)
+	UPROPERTY(DefaultComponent, Category ="Projectie")
 	USceneComponent ProjectileRotator;
 
 	UPROPERTY(DefaultComponent, Category = "StaticMesh")
 	UStaticMeshComponent EnemyMesh;
 
-	UPROPERTY()
+	UPROPERTY(Category = "StaticMesh")
 	UMaterialInstanceDynamic EnemyDynamicMaterialInstance;
 
-	UPROPERTY()
+	UPROPERTY(Category = "StaticMesh")
 	FLinearColor InitialColor;
 
 	UPROPERTY(DefaultComponent, Category = "Components")
@@ -49,26 +49,14 @@ class ASTBaseEnemy : APawn
 	UPROPERTY(DefaultComponent, Category = "Components")
 	USTHealthComponent HealthComponent;
 
-	UPROPERTY(DefaultComponent)
+	UPROPERTY(DefaultComponent, Category = "Components")
 	UArrowComponent ForwardArrow;
-
-	UPROPERTY()
-	ASTGameState GS;
-
-	UPROPERTY()
-	ASTShip PlayerShip;
 
 	UPROPERTY()
 	float EnemySpeed;
 
 	UPROPERTY()
 	float RotationInterpSpeed;
-
-	UPROPERTY()
-	FRotator CurrentActorRotation;
-
-	UPROPERTY()
-	bool bHasShield;
 
 	UPROPERTY()
 	EEnemyMovementType EnumEnemyMovement = EEnemyMovementType::STATIC;
@@ -95,23 +83,32 @@ class ASTBaseEnemy : APawn
 	bool bNoRotation;
 
 	UPROPERTY()
-	FTimerHandle TimeHandle_Shooting;
-
-	UPROPERTY()
 	float TimeBetweenShots = 0.75f;
 
 	UPROPERTY()
 	float ScoringPoints = 25.0f;
 
+
+	/*** LOCAL TYPES ***/
+
+	ASTGameState GS;
+	ASTShip PlayerShip;
 	ASTMapDirector MapDirector;
+
 	bool bIsMoving;
 	bool bHomeMissile;
 	bool bIsAlternateProjectile;
+
+	FRotator CurrentActorRotation;
 	TArray<AActor> IgnoredActors;
+	FTimerHandle TimeHandle_Shooting;
+
+
+	/*** DEFAULTS ***/
 
 	default AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-
 	default Tags.Add(n"enemy");
+
 
 	/*** FUNCTION ***/
 
@@ -127,6 +124,7 @@ class ASTBaseEnemy : APawn
 
 		HealthComponent.OnDeath.AddUFunction(this, n"ScorePoint");
 		HealthComponent.OnTakeDamageSignature.AddUFunction(this, n"PlayVisualFeedback");
+
 		EnemyDynamicMaterialInstance =  EnemyMesh.CreateDynamicMaterialInstance(0, EnemyMesh.GetMaterial(0));
 		InitialColor = EnemyDynamicMaterialInstance.GetVectorParameterValue(n"Color");
 		EnemyMesh.SetMaterial(0, EnemyDynamicMaterialInstance);
@@ -156,8 +154,9 @@ class ASTBaseEnemy : APawn
 		
 		if(MapDirector.bDevMode)
 		{
-			return;
+			return;		//Do not initialize in DevMode
 		}
+
 		switch(EnumEnemyMovement)
 		{
 			case EEnemyMovementType::STATIC:
@@ -180,7 +179,8 @@ class ASTBaseEnemy : APawn
 	UFUNCTION()
 	void AddMovement()
 	{
-		AddMovementInput(FVector(PlayerShip.GetActorLocation().X, PlayerShip.GetActorLocation().Y, ActorLocation.Z) - GetActorLocation(), Gameplay::GetWorldDeltaSeconds() * EnemySpeed);
+		AddMovementInput(FVector(PlayerShip.GetActorLocation().X, PlayerShip.GetActorLocation().Y, ActorLocation.Z) - GetActorLocation(),
+			Gameplay::GetWorldDeltaSeconds() * EnemySpeed);
 	}
 
 	UFUNCTION()
@@ -220,7 +220,6 @@ class ASTBaseEnemy : APawn
 					if(System::LineTraceSingle(GetActorLocation(), GetActorRotation().GetForwardVector() * 50000.0f, 
 						ETraceTypeQuery::Enemy, false, IgnoredActors, EDrawDebugTrace::None, Hit, true, FLinearColor::Red, FLinearColor::Green, 1.0f))
 					{
-						// System::DrawDebugLine(Hit.TraceStart, Hit.TraceEnd, FLinearColor::Blue, 1.0f, 2.0f);
 						//Spawn Projectile
 						if(Hit.Actor == PlayerShip)
 						{

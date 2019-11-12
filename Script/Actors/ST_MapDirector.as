@@ -73,6 +73,9 @@ class ASTMapDirector : AActor
 	TSubclassOf<AActor> StartGameActor;
 
 	UPROPERTY()
+	TSubclassOf<AActor> EndGameActor;
+
+	UPROPERTY()
 	TArray<FGameStages> GameStages;
 
 	UPROPERTY()
@@ -99,10 +102,13 @@ class ASTMapDirector : AActor
 
 	UPROPERTY()
 	TArray<USceneComponent> SlotsLocation;
+
 	float MapScaleDivision = 15.0f;
 	float CellDistance = 200.0f;
 	int IndexMultiplier = 1;
 	int DrawDebuggerIndex;
+	AActor MyEndGameActor;
+	FTimerHandle TimeHandle_ResetGame;
 
 	UPROPERTY()
 	ASTGameState GS;
@@ -251,8 +257,17 @@ class ASTMapDirector : AActor
 	UFUNCTION()
 	void InitializeStage(int NextStage)
 	{
-		SetNextLevel(GameStages[NextStage+StartAtStage].MapSize, NextStage+StartAtStage);
-		UpdateHUDStage(NextStage+StartAtStage);
+		if(NextStage + StartAtStage < GameStages.Num())
+		{
+			SetNextLevel(GameStages[NextStage+StartAtStage].MapSize, NextStage+StartAtStage);
+			UpdateHUDStage(NextStage+StartAtStage);
+		}
+		else
+		{
+			LevelSpawnerComponent.ClearLevel();
+			MyEndGameActor = SpawnActor(EndGameActor, FVector::ZeroVector, FRotator::ZeroRotator);
+			TimeHandle_ResetGame = System::SetTimer(this, n"ResetGame", 5.0f, false);
+		}
 	}
 
 	//Trigger Blueprint timeline animation
@@ -271,8 +286,6 @@ class ASTMapDirector : AActor
 	UFUNCTION()
 	void StartLevelString(FString LevelString)
 	{
-		Print(LevelString, 1.0f);
-
 		////Destroy spawned actors and clear array
 		LevelSpawnerComponent.ClearLevel();
 
@@ -324,6 +337,14 @@ class ASTMapDirector : AActor
 	void StartHUDAnimation()
 	{
 		return;
+	}
+
+	UFUNCTION()
+	void ResetGame()
+	{	
+		MyEndGameActor.DestroyActor();
+		System::ClearAndInvalidateTimerHandle(TimeHandle_ResetGame);
+		GS.FinishGame();
 	}
 
 

@@ -67,7 +67,6 @@ class ASTGameState : AGameStateBase
 		{
 			NextStage(Stage);
 		}
-		Print("ActiveEnemies" + ActiveEnemies, 1.0f);
 	}
 
 	UFUNCTION()

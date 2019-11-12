@@ -39,6 +39,8 @@ class ASTEnemyProjectileBase : ASTPlayerProjectile
 	default Tags.Add(n"enemy");
 
 
+	/*** FUNCTIONS ***/
+
 	UFUNCTION(BlueprintOverride)
 	void ConstructionScript()
 	{

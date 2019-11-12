@@ -34,7 +34,7 @@ class ASTShip : APawn
     UPROPERTY(DefaultComponent, Category = "Components")
     UInputComponent PlayerInputComponent;
 
-	UPROPERTY(DefaultComponent)
+	UPROPERTY(DefaultComponent, Category = "Components")
 	USTHealthComponent HealthComponent;
 	default HealthComponent.MaxHealth = 3.0f;
 
@@ -82,8 +82,13 @@ class ASTShip : APawn
 	ASTMapDirector MapDirector;
 	ASTGameState GS;
 
+	
+	/*** DEFAULTS ***/
+
 	default Tags.Add(n"ship");
 
+
+	/*** FUNCTIONS ***/
 
 	UFUNCTION(BlueprintOverride)
 	void BeginPlay()
@@ -185,14 +190,8 @@ class ASTShip : APawn
 	UFUNCTION()
 	void SpawnProjectile()
 	{
-		
 		AActor MyProjectile = SpawnActor(ProjectileClass, ProjectileSpawnLocation.GetWorldLocation(), ProjectileSpawnLocation.GetWorldRotation());
 
-		if(bBonusShot)
-		{
-			//TODO Multiple Projectiles
-		}
-		
 		if(SShipShot != nullptr)
 		{
 			Gameplay::PlaySound2D(SShipShot);

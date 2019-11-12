@@ -8,23 +8,31 @@ class ASTPlayerProjectile : AActor
 	default CollisionBox.SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	default CollisionBox.SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
 
-	UPROPERTY(DefaultComponent)
+	UPROPERTY(DefaultComponent, Category = "Mesh")
 	UStaticMeshComponent ProjectileMesh;
 	default ProjectileMesh.SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	UPROPERTY(DefaultComponent)
+	UPROPERTY(DefaultComponent, Category = "Component")
 	UProjectileMovementComponent ProjectileMovementComponent;
 	default ProjectileMovementComponent.InitialSpeed = 2500.0f;
 	default ProjectileMovementComponent.ProjectileGravityScale = 0.0f;
 
-	UPROPERTY()
+	UPROPERTY(Category = "Projectile")
 	float ProjectileDamage = 1.0f;
 
-	UPROPERTY()
+
+	/*** LOCAL TYPES ***/
+
 	UDamageType DamageType;
+
+
+	/*** DEFAULTS ***/
 
 	default InitialLifeSpan = 3.0f;
 
+
+	/*** FUNCTIONS ***/
+	
 	UFUNCTION(BlueprintOverride)
 	void ActorBeginOverlap(AActor OtherActor)
 	{

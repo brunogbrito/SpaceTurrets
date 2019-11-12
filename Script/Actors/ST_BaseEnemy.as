@@ -110,7 +110,7 @@ class ASTBaseEnemy : APawn
 	default Tags.Add(n"enemy");
 
 
-	/*** FUNCTION ***/
+	/*** FUNCTIONS ***/
 
 	UFUNCTION(BlueprintOverride)
 	void BeginPlay()

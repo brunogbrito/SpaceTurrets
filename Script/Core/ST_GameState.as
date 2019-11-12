@@ -80,6 +80,6 @@ class ASTGameState : AGameStateBase
 	void FinishGame()
 	{
 		bGameStarted = false;
-		OnEndGameSignature.Broadcast();		//Broadcast to BaseEnemy
+		OnEndGameSignature.Broadcast();		//Broadcast to BaseEnemy, BaseWall
 	}
 }

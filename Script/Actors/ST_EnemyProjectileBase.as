@@ -13,15 +13,8 @@ class ASTEnemyProjectileBase : ASTPlayerProjectile
 	UPROPERTY()
 	EProjectileType EnumProjectileType;
 	
-	default ProjectileMovementComponent.InitialSpeed = 750.0f;
-
-	default Tags.Add(n"enemy");
-
 	UPROPERTY()
 	bool bCanCollideWithProjectiles;
-
-	UPROPERTY()
-	ASTShip PlayerShip;
 
 	UPROPERTY()
 	FRotator CurrentActorRotation;
@@ -32,9 +25,18 @@ class ASTEnemyProjectileBase : ASTPlayerProjectile
 	UPROPERTY()
 	float RotationInterpSpeed = 50.0f;
 
+
+	/*** LOCAL TYPES ***/
+
+	ASTShip PlayerShip;
 	bool bFollowPlayer;
 
+
+	/*** DEFAULTS ***/
+
+	default ProjectileMovementComponent.InitialSpeed = 750.0f;
 	default Tags.Add(n"EnemyProjectile");
+	default Tags.Add(n"enemy");
 
 
 	UFUNCTION(BlueprintOverride)
@@ -71,6 +73,7 @@ class ASTEnemyProjectileBase : ASTPlayerProjectile
 	UFUNCTION(BlueprintEvent)
 	void SetHomingTarget(USceneComponent HomingTarget)
 	{
+		//Set Homing Missile target in Blueprints
 		return;
 	}
 	

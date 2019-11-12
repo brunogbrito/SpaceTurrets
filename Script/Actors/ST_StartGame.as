@@ -2,14 +2,19 @@ import Actors.ST_BaseEnemy;
 
 class ASTStartGame : ASTBaseEnemy
 {
-	default HealthComponent.MaxHealth = 100.0f;
 
-	UPROPERTY()
 	FTimerHandle TimeHandle_ProgressBar;
 
-	UPROPERTY()
 	float ProgressBar;
 
+
+	/*** DEFAULTS ***/
+
+	default HealthComponent.MaxHealth = 100.0f;
+
+
+	/*** FUNCTIONS ***/
+	
 	//This function is triggered in Blueprints
 	UFUNCTION()
 	void InitializeProgressBarSystem()

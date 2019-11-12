@@ -6,8 +6,10 @@ class USTLevelCreator : UUserWidget
 	UPROPERTY()
 	FString LevelString;
 
-	UPROPERTY()
 	ASTMapDirector MapDirector;
+
+
+	/*** FUNCTIONS ***/
 
 	UFUNCTION(BlueprintOverride)
 	void Construct()

@@ -30,6 +30,8 @@ class ASTGameState : AGameStateBase
 	FUpdateScore OnUpdateScoreSignature;
 
 
+	/*** FUNCTIONS ***/
+
 	UFUNCTION()
 	void StartGame()
 	{

@@ -1,5 +1,4 @@
 import Core.ST_Statics;
-import Core.ST_LevelAssets;
 
 struct FSpawnActor
 {
@@ -22,9 +21,6 @@ struct FLevelType
 class USTLevelSpawnerComponent : UActorComponent
 {
 	UPROPERTY()
-	ST_LevelAssets LevelDataAssets;
-
-	UPROPERTY()
 	TArray<FLevelType> LevelStages;
 
 	UPROPERTY()
@@ -34,6 +30,8 @@ class USTLevelSpawnerComponent : UActorComponent
 	TMap<FString, AActor> LevelAssetMap;
 
 
+	/*** FUNCTIONS ***/
+	
 	UFUNCTION()
 	void ClearLevel()
 	{

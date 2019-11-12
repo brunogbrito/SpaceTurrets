@@ -5,6 +5,7 @@ class ASTStartGame : ASTBaseEnemy
 
 	FTimerHandle TimeHandle_ProgressBar;
 
+	UPROPERTY()
 	float ProgressBar;
 
 

@@ -13,35 +13,42 @@ class ASTBaseWall : AActor
 	UPROPERTY(DefaultComponent, RootComponent)
 	USceneComponent Root;
 	
-	UPROPERTY(DefaultComponent)
+	UPROPERTY(DefaultComponent, Category = "Collision")
 	UBoxComponent BoxCollision;
 	default BoxCollision.CollisionObjectType = ECollisionChannel::ECC_WorldStatic;
 	default BoxCollision.SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	default BoxCollision.SetCollisionResponseToChannel(ECollisionChannel::ShipProjectile, ECollisionResponse::ECR_Overlap);
 	default BoxCollision.GenerateOverlapEvents = true;
 
-	UPROPERTY(DefaultComponent)
+	UPROPERTY(DefaultComponent, Category = "Collision")
 	UBoxComponent PlayerOverlapCollision;
 	default PlayerOverlapCollision.BoxExtent = FVector(80.0f);
 
-	UPROPERTY(DefaultComponent, Attach = BoxCollision)
+	UPROPERTY(DefaultComponent, Attach = BoxCollision, Category = "Collision")
 	UStaticMeshComponent BlockMesh;
 	default BlockMesh.CollisionEnabled = ECollisionEnabled::NoCollision;
 
-	UPROPERTY(DefaultComponent)
+	UPROPERTY(DefaultComponent, Category = "Component")
 	USTHealthComponent HPComponent;
 
-	UPROPERTY()
+	UPROPERTY(Category = "ClassSettings")
 	EBlockType EnumBlockType;
 
-	UPROPERTY()
+	UPROPERTY(Category = "ClassSettings")
 	float WallHP = 3.0f;
 
-	UPROPERTY()
+
+	/*** LOCAL TYPES ***/
+
 	FVector BoxExtension = FVector(100.0f, 100.0f, 100.0f);;
+
+
+	/*** DEFAULTS ***/
 
 	default Tags.Add(n"Wall");
 	
+
+	/*** FUNCTIONS ***/
 
 	UFUNCTION(BlueprintOverride)
 	void ConstructionScript()

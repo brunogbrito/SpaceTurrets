@@ -1,2 +1,2 @@
-# Hazelight_Worktest_01
-This is my worktest project for LevelDesign intership at Hazelight
+# SpaceTurrets
+A simple arcade game built with Unreal Engine 4 and Angelscript-UE4

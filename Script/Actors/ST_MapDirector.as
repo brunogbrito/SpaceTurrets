@@ -105,11 +105,12 @@ class ASTMapDirector : AActor
 	float MapScaleDivision = 15.0f;
 	float CellDistance = 200.0f;
 	int IndexMultiplier = 1;
-	int DrawDebuggerIndex;
+	int DrawDebuggerIndex = 0;
 
 	AActor MyEndGameActor;
 	ASTGameState GS;
 
+	UPROPERTY()
 	TArray<USceneComponent> SlotsLocation;
 	FTimerHandle TimeHandle_ResetGame;
 
